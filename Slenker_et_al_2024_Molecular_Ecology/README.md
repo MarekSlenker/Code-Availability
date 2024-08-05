@@ -33,24 +33,25 @@ Sequences, with SNPs coded with iupac ambiguity codes were created by script
 table with the proportions of SNPs in each locus and sample was created by [HybPhaser.2a.count_snps.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/HybPhaser.2a.count_snps.R), and tables and graphs to assess the variability of sequences were created by the script 
 [HybPhaser.2b.assess_dataset.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/HybPhaser.2b.assess_dataset.R).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Sequences, where the proportion of single nucleotide polymorphisms exceeded 2% were excluded from subsequent processing.
+
+
+
+# Read-backed phasing
+
+The code (roughly) follows the procedures outlined in the [alleles_workflow](https://github.com/mossmatters/phyloscripts/tree/master/alleles_workflow) GitHub repository. The following scripts implement these procedures.  
+The sequences of each sample are phased by *****SSSSSCCCCRRRRRIIIIIPPPPPTTTTT, using sequences and fastq reads. 
+
+
+Phasing.1.phasing_oneSample.sh
+
+
+
+
+
+
+
+
 
 
 
