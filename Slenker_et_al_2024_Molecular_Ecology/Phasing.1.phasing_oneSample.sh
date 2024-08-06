@@ -89,7 +89,7 @@ done
 
 cp $SAMPLE.fasta $SAMPLE.notPhased.fasta
 while read PATTERN; do
-    sed -i -e "/$PATTERN/,+1d" $SAMPLE.notPhased.fasta
+    sed -i -e "/$PATTERN/,+1d" $SAMPLE.unPhased.fasta
 done < genelist.txt
 
 
