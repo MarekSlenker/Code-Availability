@@ -40,13 +40,21 @@ Sequences, where the proportion of single nucleotide polymorphisms exceeded 2% w
 # Read-backed phasing
 
 The code (roughly) follows the procedures outlined in the [alleles_workflow](https://github.com/mossmatters/phyloscripts/tree/master/alleles_workflow) GitHub repository. The following scripts implement these procedures.  
-The sequences of each sample are phased by *****SSSSSCCCCRRRRRIIIIIPPPPPTTTTT, using sequences and fastq reads. 
+The sequences of each sample are phased by [Phasing.1.phasing_oneSample.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Phasing.1.phasing_oneSample.sh). This script takes consensus sequences and fastq reads at the input and produces phased sequences `"$SAMPLE".v1.phased.fasta, "$SAMPLE".v2.phased.fasta, ...` and unphased `"$SAMPLE".unPhased.fasta` sequences. Phased sequences are sometimes represented by multiple mutually unphased blocks (take a look at `"$SAMPLE".whatshap.gtf`). Selection of the longest phased block and masking of remaining variant is responsibility of [Phasing.2.masking.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Phasing.2.masking.sh) script.  
 
-
-Phasing.1.phasing_oneSample.sh
-
-
-
+The SAMPLEPLOIDYLIST file needed for <ins>Phasing.2.masking.sh</ins> has the following structure (sample1 \n ploidy of sample1 \n sample2 \n ploidy of sample2 \n ....)  
+```
+acraBAB6
+2
+acraC003_104
+2
+acraC018_101
+4
+acraC095_109
+3
+acraC149_8
+2
+```
 
 
 
