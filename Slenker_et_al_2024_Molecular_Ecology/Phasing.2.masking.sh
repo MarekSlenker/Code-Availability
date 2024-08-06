@@ -8,7 +8,7 @@ while read SAMPLE; do
     
     for((i=1;i<=$PLOIDY;i=i+1)); do
         echo "$i"
-        python3 haplonerate_MK_bere1vrati1alelu-3x,5x,7x...py --edit ref ./$SAMPLE.whatshap.gtf ./$SAMPLE.v$i.phased.fasta --reference ./$SAMPLE.fasta.Nmasked.fasta --allele $i --output ./$SAMPLE.phased.haplonerate.Nmasked.$i.fasta
+        python3 Phasing.haplonerate_MK_bere1vrati1alelu-3x,5x,7x...py --edit ref ./$SAMPLE.whatshap.gtf ./$SAMPLE.v$i.phased.fasta --reference ./$SAMPLE.fasta.Nmasked.fasta --allele $i --output ./$SAMPLE.phased.haplonerate.Nmasked.$i.fasta
     done
 
 done < $SAMPLEPLOIDYLIST
