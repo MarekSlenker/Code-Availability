@@ -109,7 +109,7 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    done < list
    rm *fasta
    ```
-
+2. RAxML and ASTRAL trees for individual genes. [PhyloNetworks.1.RAxML.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.1.RAxML.sh)
 
 
 
