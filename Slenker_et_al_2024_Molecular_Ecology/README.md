@@ -57,7 +57,28 @@ acraC149_8
 2
 ```
 
+# Maximum likelihood (ML) trees
+Maximum likelihood (ML) trees were inferred:  
+* for each gene separately using RAxML-NG. Best-fitting substitution model was determined through the ModelFinder function of IQ-TREE. [ML_Trees.RAxML-NG.IQ_TREE.1seq.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.RAxML-NG.IQ_TREE.1seq.sh)
+* from concatenated genes (concatenated by [AMAS](https://github.com/marekborowiec/AMAS)).
+  * Each gene was treated as a separate partition with its best-fitting substitution model determined through the ModelFinder function of IQ-TREE based on the BIC. [ML_Trees.concat.1.bestFittingModels.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.concat.1.bestFittingModels.sh). <em>(partitions have to start with 'DNA, ')</em>
+  * Inferred models have to be parsed to RAxML format using [ML_Trees.PhyhlogenyModelParser.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.PhyhlogenyModelParser.sh), and overall structure as well. The resulting file (partitions.best_scheme) should look like this:  
+    ```ruby
+    GTR+F+I+G4, p1_Assembly_000000000043_Assembly_000000004815_Assembly_000000007919 = 1-560, 101083-102022, 117256-117802;
+    GTR+F+I+G4, p2_Assembly_000000000043__Assembly_000000002965 = 561-907, 58272-59025;
+    TVM+F+I+G4, p3_Assembly_000000000055 = 908-1636;
+    ```    
 
+  * The best-scoring ML tree was inferred by [ML_Trees.concat.2.bestTree.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.concat.2.bestTree.sh)
+  * Bootstrap analyses were performed using 500 replicates. [ML_Trees.concat.3.BS_trees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.concat.3.BS_trees.sh)
+  * The final ML tree with support values was inferred based on the BS replicates and best-scoring ML tree.
+    
+    ```ruby
+    # merge all partial BS
+    cat *.raxml.bootstraps > allbootstraps.bootstraps
+    
+    raxml-ng --support --tree "${ALIGNMENT%.*}".raxml.bestTree --bs-trees allbootstraps.bootstraps --threads 1 --prefix "${ALIGNMENT%.*}"  >> "${ALIGNMENT%.*}".log
+    ```
 
 
 
@@ -73,9 +94,8 @@ acraC149_8
 
 
 
-Consensus exon sequences were concatenated to genes using AMAS (Borowiec, 2016), while phased exon sequences were not, as they represent unphasable blocks. Both the phased exons and consensus genes were used in downstream analyses.
-Hyb-Seq: Phylogenetic analyses and Bayesian clustering
-Maximum likelihood (ML) trees were inferred both from concatenated genes and for each gene separately using RAxML-NG v.0.9.0 (Kozlov et al., 2019). Each gene was treated as a separate partition with its best-fitting substitution model determined through the ModelFinder function of IQ-TREE v.1.6.12 (Chernomor et al., 2016; Kalyaanamoorthy et al., 2017) based on the Bayesian information criterion. Bootstrap analyses were performed using 500 replicates. For the species tree reconstruction, internal branches with bootstrap support ≤20% were collapsed using Newick-Utilities v. 1.6 (Junier & Zdobnov, 2010). The species tree was constructed employing a multispecies coalescent model implemented in ASTRAL-III (Zhang et al., 2018), including computation of local posterior probabilities to evaluate branch support (Sayyari & Mirarab, 2016).
+# ASTRAL
+For the species tree reconstruction, internal branches with bootstrap support ≤20% were collapsed using Newick-Utilities v. 1.6 (Junier & Zdobnov, 2010). The species tree was constructed employing a multispecies coalescent model implemented in ASTRAL-III (Zhang et al., 2018), including computation of local posterior probabilities to evaluate branch support (Sayyari & Mirarab, 2016).
 In addition, homogeneous genetic clusters were inferred using Bayesian clustering algorithm implemented in STRUCTURE v. 2.3.4 (Pritchard et al., 2000). The snipStrup pipeline (https://github.com/MarekSlenker/snipStrup) was used to map the Hyb-Seq reads to the consensus sequences, call variants and convert the VCF file. The STRUCTURE computations were performed and summarised as described in Šlenker et al. (2021).
 
 Hyb-Seq: Assessment of reticulation events
