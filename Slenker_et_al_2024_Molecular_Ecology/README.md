@@ -35,10 +35,7 @@ table with the proportions of SNPs in each locus and sample was created by [HybP
 
 Sequences, where the proportion of single nucleotide polymorphisms exceeded 2% were excluded from subsequent processing.
 
-
-
-# Read-backed phasing
-
+## Read-backed phasing
 The code (roughly) follows the procedures outlined in the [alleles_workflow](https://github.com/mossmatters/phyloscripts/tree/master/alleles_workflow) GitHub repository. The following scripts implement these procedures.  
 The sequences of each sample are phased by [Phasing.1.phasing_oneSample.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Phasing.1.phasing_oneSample.sh). This script takes consensus sequences and fastq reads at the input and produces phased sequences `"$SAMPLE".v1.phased.fasta, "$SAMPLE".v2.phased.fasta, ...` and unphased `"$SAMPLE".unPhased.fasta` sequences. You need to run this script for all samples.  
 Phased sequences are sometimes represented by multiple mutually unphased blocks (take a look at `"$SAMPLE".whatshap.gtf`). Selection of the longest phased block and masking of the remaining variant is the responsibility of [Phasing.2.masking.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Phasing.2.masking.sh) script. Phased sequences are written to RESDIR directory. This script works with all samples simultaneously, using files produced by the previous script.   
@@ -57,7 +54,7 @@ acraC149_8
 2
 ```
 
-# Maximum likelihood (ML) trees
+## Maximum likelihood (ML) trees
 Maximum likelihood (ML) trees were inferred:  
 * for each gene separately using RAxML-NG. Best-fitting substitution model was determined through the ModelFinder function of IQ-TREE. [ML_Trees.RAxML-NG.IQ_TREE.1seq.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.RAxML-NG.IQ_TREE.1seq.sh)
 * from concatenated genes (concatenated by [AMAS](https://github.com/marekborowiec/AMAS)).
@@ -80,7 +77,38 @@ Maximum likelihood (ML) trees were inferred:
     raxml-ng --support --tree "${ALIGNMENT%.*}".raxml.bestTree --bs-trees allbootstraps.bootstraps --threads 1 --prefix "${ALIGNMENT%.*}"  >> "${ALIGNMENT%.*}".log
     ```
 
+## ASTRAL
+For the species tree reconstruction, internal branches with bootstrap support ≤20% were collapsed using Newick-Utilities v. 1.6. 
+```ruby
+parallel "nw_ed  {} 'i & b<20' o > ./{}.BS20" ::: *support
+```
+The species tree was constructed employing a multispecies coalescent model implemented in ASTRAL-III, including the computation of local posterior probabilities to evaluate branch support.
+```ruby
+cat *.BS20 > bs20_trees
+java -jar ~/bin/astral.5.7.8/astral.5.7.8.jar -i bs20_trees -o astralTree.tree --namemapfile namemapfile -t 4 -r 10000
+```
 
+## STRUCTURE
+Homogeneous genetic clusters were inferred using Bayesian clustering algorithm implemented in STRUCTURE v. 2.3.4. The [snipStrup pipeline](https://github.com/MarekSlenker/snipStrup) was used to map the Hyb-Seq reads to the consensus sequences, call variants and convert the VCF file. The STRUCTURE analysis itself was run like in the [STRUCTURE.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/STRUCTURE.sh) script. The results were visualised by [CLUMPAK](https://tau.evolseq.net/clumpak/) and the homogeneity of results was assessed on the graphs produced by [structureSum](https://github.com/MarekSlenker/structureSum).
+
+
+## SNaQ (PhyloNetworks)
+Reticulation events were inferred with 500 gene trees, computed from the longest gene alignments. The gene trees were summarized using quartet concordance factors. The species tree reconstructed in ASTRAL-III served as the initial tree, and the snaq method inferred the best phylogenetic network, testing 0 to 4 reticulation events, each optimized with 50 independent runs. Determination of the optimal number of hybrid edges followed Solís-Lemus & Ané (2016). Finally, support for all branches and reticulations in the network was estimated by 500 bootstrap replicates. More details are provided below:
+1. fasta to nexus
+   ```
+   for f in *fasta; do
+   echo $f;
+   seqret -sequence "$f" -outseq "$f".nex -osformat nexus
+   done
+   
+   
+   # move each nexus to its respective folder
+   ls *nex | sed 's/.fasta.nex//' > list
+   while read L; do
+     mkdir $L; mv "$L".fasta.nex "$L";
+   done < list
+   rm *fasta
+   ```
 
 
 
@@ -88,20 +116,15 @@ Maximum likelihood (ML) trees were inferred:
 
 # don't read any further, I'm still working on it 
 # don't read any further, I'm still working on it
-# don't read any further, I'm still working on it
-# don't read any further, I'm still working on it
-# don't read any further, I'm still working on it
 
 
 
-# ASTRAL
-For the species tree reconstruction, internal branches with bootstrap support ≤20% were collapsed using Newick-Utilities v. 1.6 (Junier & Zdobnov, 2010). The species tree was constructed employing a multispecies coalescent model implemented in ASTRAL-III (Zhang et al., 2018), including computation of local posterior probabilities to evaluate branch support (Sayyari & Mirarab, 2016).
-In addition, homogeneous genetic clusters were inferred using Bayesian clustering algorithm implemented in STRUCTURE v. 2.3.4 (Pritchard et al., 2000). The snipStrup pipeline (https://github.com/MarekSlenker/snipStrup) was used to map the Hyb-Seq reads to the consensus sequences, call variants and convert the VCF file. The STRUCTURE computations were performed and summarised as described in Šlenker et al. (2021).
-
-Hyb-Seq: Assessment of reticulation events
-Reticulation events were inferred using SNaQ (Solís-Lemus & Ané, 2016; implemented in PhyloNetworks v. 0.16.2, Solís-Lemus et al., 2017) with 500 gene trees, computed from the longest gene alignments, where internal branches with bootstrap support ≤20% were collapsed. The gene trees were summarized using quartet concordance factors. The species tree reconstructed in ASTRAL-III served as the initial tree, and the snaq method inferred the best phylogenetic network, testing 0 to 4 reticulation events, each optimized with 50 independent runs. Determination of the optimal number of hybrid edges followed Solís-Lemus & Ané (2016). Finally, support for all branches and reticulations in the network was estimated by 500 bootstrap replicates.
 Hyb-Seq: The origin of polyploid populations
 Phased exon sequences of polyploids were processed by the PhyloSD pipeline (Sancho et al., 2022) to identify the homeologous diploid genomes. Due to the pipeline's requirement for a single representative of diploid genomes, species tree of each gene was calculated using ASTRAL-III. Due to unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in Sancho et al., 2022), but stricter criteria were applied in the Bootstrapping Refinement step, requiring confirmation by at least 40% of bootstrap replicates. Homeologs’ ML consensus tree was constructed from the homeologs with at least 15% representation in the polyploid species. The Subgenome Assignment algorithm collapsed homeologs referring to the same subgenomes according to the principal coordinate analysis and superimposed minimum spanning tree generated from patristic distances (following Sancho et al., 2022), and the final Subgenomic ML consensus tree was constructed. 
+
+
+
+
 
 RADseq data processing
 The RADseq reads were mapped on the genome of C. amara (Šlenker et al., in prep.) using BWA 0.7.5a (Li, 2013) and the resulting BAM files were processed with Picard Toolkit 2.22.1. (https://broadinstitute.github.io/picard/). Variant calling was performed for each individual using the HaplotypeCaller module from the GATK 4.4.0.0 (McKenna et al., 2010). As next, variants were aggregated and genotyping across all individuals was performed using the GenomicsDBImport and GenotypeGVCFs modules. Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules. Finally, samples with more than 60 % missing genotypes were excluded. Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
