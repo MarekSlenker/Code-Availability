@@ -146,7 +146,7 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    sed -i '/.*rivularis.*rivularis.*rivularis/d' tableCF.astral.speciesNames.csv
    sed -i '/.*anatolica.*anatolica.*anatolica/d' tableCF.astral.speciesNames.csv
    ```
-6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl)
+6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl). Estimation of the optimal number of hybridizations followed [Choice of number of hybridizations](https://github.com/JuliaPhylo/PhyloNetworks.jl/wiki/Choice-of-number-of-hybridizations).
 7. BS support was determined from ASTRAL bootstrap replicates (from raxml's bootstrap gene trees). ASTRAL BS trees were collected by
    ```ruby
    for F in astral.Assembly*; do
@@ -159,19 +159,16 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    ```
    and BS support was inferred by script [PhyloNetworks.5.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.5.BS.jl).
 
-11.
-12. Collect all ASTRAL BS trees
+## PhyloSD
+Due to the pipeline's requirement for a single representative of diploid genomes, the species tree from each gene tree was calculated by ASTRAL-III, merging 2x samples to the single representative, but keeping polyploids with separate (phased) alleles. [PhyloSD.1.ASTRALGeneTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.1.ASTRALGeneTrees.sh)
+
+
+Phased exon sequences of polyploids were processed by the PhyloSD pipeline (Sancho et al., 2022) to identify the homeologous diploid genomes. 
+Due to unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in Sancho et al., 2022), but stricter criteria were applied in the Bootstrapping Refinement step, requiring confirmation by at least 40% of bootstrap replicates. Homeologs’ ML consensus tree was constructed from the homeologs with at least 15% representation in the polyploid species. The Subgenome Assignment algorithm collapsed homeologs referring to the same subgenomes according to the principal coordinate analysis and superimposed minimum spanning tree generated from patristic distances (following Sancho et al., 2022), and the final Subgenomic ML consensus tree was constructed. 
 
 
 # don't read any further, I'm still working on it 
 # don't read any further, I'm still working on it
-
-
-
-Hyb-Seq: The origin of polyploid populations
-Phased exon sequences of polyploids were processed by the PhyloSD pipeline (Sancho et al., 2022) to identify the homeologous diploid genomes. Due to the pipeline's requirement for a single representative of diploid genomes, species tree of each gene was calculated using ASTRAL-III. Due to unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in Sancho et al., 2022), but stricter criteria were applied in the Bootstrapping Refinement step, requiring confirmation by at least 40% of bootstrap replicates. Homeologs’ ML consensus tree was constructed from the homeologs with at least 15% representation in the polyploid species. The Subgenome Assignment algorithm collapsed homeologs referring to the same subgenomes according to the principal coordinate analysis and superimposed minimum spanning tree generated from patristic distances (following Sancho et al., 2022), and the final Subgenomic ML consensus tree was constructed. 
-
-
 
 
 
