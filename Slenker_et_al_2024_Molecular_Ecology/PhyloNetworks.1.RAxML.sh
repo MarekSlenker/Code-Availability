@@ -61,7 +61,8 @@ sed -i 's/:,/:/g' astral."$FILE"/astral.nameMapFile
 
 
 java -jar ./PhyloNetworks/Astral_binary/astral.5.7.8.jar \
--i raxml."$FILE"/besttrees.tre -b astral."$FILE"/BSlistfiles \
+-i raxml."$FILE"/besttrees.tre \
+-b astral."$FILE"/BSlistfiles \
 -r 100 \
 -o astral."$FILE"/astral.tre \
 -a astral."$FILE"/astral.nameMapFile
