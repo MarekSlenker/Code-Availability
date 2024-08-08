@@ -160,11 +160,44 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    and BS support was inferred by script [PhyloNetworks.5.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.5.BS.jl).
 
 ## PhyloSD
-Due to the pipeline's requirement for a single representative of diploid genomes, the species tree from each gene tree was calculated by ASTRAL-III, merging 2x samples to the single representative, but keeping polyploids with separate (phased) alleles. [PhyloSD.1.ASTRALGeneTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.1.ASTRALGeneTrees.sh)
+Due to the pipeline's requirement for a single representative of diploid genomes, the species tree from each gene tree was calculated by ASTRAL-III using [PhyloSD.1.ASTRALGeneTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.1.ASTRALGeneTrees.sh) script, merging 2x samples to the single representative, but keeping polyploids with separate (phased) alleles.  
+#### 1) NEAREST DIPLOID SPECIES NODE algorithm
+1.5) Root and sort nodes in trees, loosing bootstrap and aLRT supports on the way. (see also [.5) Root and sort nodes in trees..](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#15-root-and-sort-nodes-in-trees-loosing-bootstrap-and-alrt-supports-on-the-way))
+```ruby
+mkdir 1.5_RootAndSort
+parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD/_reroot_tree.pl {} > 1.5_RootAndSort/{.}.root.ph" ::: *astralTree
+```
+1.6) Check diploid skeleton (topology) for each tree (see also [Check diploid skeleton (topology) for each tree)](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#16-check-diploid-skeleton-topology-for-each-tree))
+```ruby
+cd 1.5_RootAndSort
+for FILE in *root.ph; do
+   perl5.38.2 ./PhyloSD/bin/PhyloSD/_check_diploids.pl $FILE;
+done > ../diploids.log
+```
+Due to an unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in the original pipeline), and all sequences and trees were moved to `1.7_congruent_and_labelled_files` folder.
+```ruby
+mkdir 1.7_congruent_and_labelled_files
+cp 1.5_RootAndSort/*ph 1.7_congruent_and_labelled_files # trees
+cp inputSequences/*fna 1.7_congruent_and_labelled_files # sequences
+```
 
+1.8) Labelling polyploid homeologs (see also [Labelling polyploid homeologs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#18-labelling-polyploid-homeologs))
+```ruby
+parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD_orig/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
+```
+
+#### 2) BOOTSTRAPPING REFINEMENT algorithm
+
+
+
+
+but stricter criteria were applied later.
+
+
+ 
 
 Phased exon sequences of polyploids were processed by the PhyloSD pipeline (Sancho et al., 2022) to identify the homeologous diploid genomes. 
-Due to unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in Sancho et al., 2022), but stricter criteria were applied in the Bootstrapping Refinement step, requiring confirmation by at least 40% of bootstrap replicates. Homeologs’ ML consensus tree was constructed from the homeologs with at least 15% representation in the polyploid species. The Subgenome Assignment algorithm collapsed homeologs referring to the same subgenomes according to the principal coordinate analysis and superimposed minimum spanning tree generated from patristic distances (following Sancho et al., 2022), and the final Subgenomic ML consensus tree was constructed. 
+Due to unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in Sancho et al., 2022), but stricter criteria were applied laterin the Bootstrapping Refinement step, requiring confirmation by at least 40% of bootstrap replicates. Homeologs’ ML consensus tree was constructed from the homeologs with at least 15% representation in the polyploid species. The Subgenome Assignment algorithm collapsed homeologs referring to the same subgenomes according to the principal coordinate analysis and superimposed minimum spanning tree generated from patristic distances (following Sancho et al., 2022), and the final Subgenomic ML consensus tree was constructed. 
 
 
 # don't read any further, I'm still working on it 
