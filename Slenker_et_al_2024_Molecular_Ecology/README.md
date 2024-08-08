@@ -147,7 +147,20 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    sed -i '/.*anatolica.*anatolica.*anatolica/d' tableCF.astral.speciesNames.csv
    ```
 6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl)
-7. bla bla
+7. BS support was determined from ASTRAL bootstrap replicates (from raxml's bootstrap gene trees). ASTRAL BS trees were collected by
+   ```ruby
+   for F in astral.Assembly*; do
+     echo $F
+     cd $F
+     head -n 100 astral.tre > astral.BStrees
+     echo "$F"/astral.BStrees >> ../astral.BSlistfiles
+     cd ..
+   done
+   ```
+   and BS support was inferred by script [PhyloNetworks.5.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.5.BS.jl).
+
+11.
+12. Collect all ASTRAL BS trees
 
 
 # don't read any further, I'm still working on it 
