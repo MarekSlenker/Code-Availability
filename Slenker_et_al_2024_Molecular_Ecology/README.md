@@ -110,6 +110,27 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    rm *fasta
    ```
 2. RAxML and ASTRAL trees for individual genes. [PhyloNetworks.1.RAxML.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.1.RAxML.sh)
+3. Overall ASTRAL tree from individual gene trees. This will be the H0 starting tree. [PhyloNetworks.2.ASTRAL.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.2.ASTRAL.sh)
+4. Calculate the quartet concordance factors (CF) observed in the gene trees, and replace samples by the species names (based on the mapping file `allele-species-map.csv`). [PhyloNetworks.3.CFtable.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.3.CFtable.jl) (julia script). The `allele-species-map.csv` has following structure:
+   ```
+   allele,species
+   acraC015_107,acris
+   acraC019_103,acris
+   ambC014_101,amara
+   amoC046_107,amara
+   ```
+5. The `tableCF.astral.speciesNames.csv`  contains uninformative 4-taxon sets (eg., acris,acris,acris,amara), which have to be removed.
+   ```
+   sed -i '/.*EBalkan.*EBalkan.*EBalkan/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*Dinaric.*Dinaric.*Dinaric/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*SharGramos.*SharGramos.*SharGramos/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*Pindicola.*Pindicola.*Pindicola/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*Vardousiae.*Vardousiae.*Vardousiae/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*lazica.*lazica.*lazica/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*matthioli.*matthioli.*matthioli/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*rivularis.*rivularis.*rivularis/d' tableCF.astral.speciesNames.csv
+   sed -i '/.*anatolica.*anatolica.*anatolica/d' tableCF.astral.speciesNames.csv
+   ```
 
 
 
