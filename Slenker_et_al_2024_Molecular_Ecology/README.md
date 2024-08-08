@@ -1,5 +1,20 @@
 <table><tr><td>https://github.com/lifeparticle/Markdown-Cheatsheet</td></tr></table>
 
+### Table of Contents
+**[Hyb-Seq data processing](#hyb-seq-data-processing)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[HybPiper](#hybpiper)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[HybPhaser](#hybphaser)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Read-backed phasing](#read-backed-phasing)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) trees](#maximum-likelihood-ml-trees)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[ASTRAL](#astral)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+
+
 # Hyb-Seq data processing
 ## HybPiper
 The Hyb-Seq reads were processed using [HybPiper v. 1.3](https://github.com/mossmatters/HybPiper/releases/tag/v1.3.1_final)  
