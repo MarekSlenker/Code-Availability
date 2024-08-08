@@ -17,4 +17,4 @@ CSV.write("tableCF.astral.individuals.csv", individualsCF); # to save the data f
 mapAllelesCFtable("allele-species-map.csv", "tableCF.astral.individuals.csv"; filename = "tableCF.astral.speciesNames.csv")
 
 
-
+exit()
