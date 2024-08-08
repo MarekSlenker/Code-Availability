@@ -119,7 +119,7 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    ambC014_101,amara
    amoC046_107,amara
    ```
-5. The `tableCF.astral.speciesNames.csv`  contains uninformative 4-taxon sets (eg., acris,acris,acris,amara), which have to be removed.
+5. The `tableCF.astral.speciesNames.csv` contains uninformative 4-taxon sets (eg., acris,acris,acris,amara), which have to be removed.
    ```
    sed -i '/.*EBalkan.*EBalkan.*EBalkan/d' tableCF.astral.speciesNames.csv
    sed -i '/.*Dinaric.*Dinaric.*Dinaric/d' tableCF.astral.speciesNames.csv
@@ -131,8 +131,8 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    sed -i '/.*rivularis.*rivularis.*rivularis/d' tableCF.astral.speciesNames.csv
    sed -i '/.*anatolica.*anatolica.*anatolica/d' tableCF.astral.speciesNames.csv
    ```
-
-
+6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl)
+7. bla bla
 
 
 # don't read any further, I'm still working on it 
