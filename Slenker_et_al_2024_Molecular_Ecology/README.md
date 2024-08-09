@@ -186,7 +186,7 @@ cp inputSequences/*fna 1.7_congruent_and_labelled_files # sequences
 cd 1.7_congruent_and_labelled_files
 parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
 ```
-Homeologs of polyploids, that fit the criteria in `polyconfig.pm` config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
+Homeologs of polyploids, that fit the criteria in `PhyloSD.polyconfig.pm` config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
 
 #### 2) BOOTSTRAPPING REFINEMENT algorithm
 
@@ -212,6 +212,7 @@ done
 
 2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 40% of bootstrap replicates. That means if some homeolog was originally labelled as "SharGramos" (step 1.8), we keep that particular sequence only if more than 200 BS trees (40%) were re-labelled as "SharGramos".
 
+2.18) "Homeologs' ML consensus tree". We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree from the concatenated alignment was computed in RAxML-NG, as described above.
 
 
 
