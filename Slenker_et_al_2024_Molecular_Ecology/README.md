@@ -346,11 +346,23 @@ countchar 'N' <concat.bialelic.filtered.DP8.passed.vcf.min4.phy
 ```
 
 
-## Phylogenetic analyses, species delimitation and Bayesian clustering
+## Maximum likelihood (ML) tree
+The [vcf2phylip.py](https://github.com/edgardomortiz/vcf2phylip/blob/master/vcf2phylip.py) script was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script [ascbias.py](https://github.com/btmartin721/raxml_ascbias).
+The ML tree was constructed by RAxML-NG v.0.9.0, employing GTR model with Felsenstein’s ascertainment bias correction using script [MLTree.1.bestTree.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/MLTree.1.bestTree.sh).
+Bootstrap analyses were performed using 500 replicates [MLTree.2.BS_trees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/MLTree.2.BS_trees.sh), and the final tree with BS support was inferred using 
+```ruby
+cat *.raxml.bootstraps > allbootstraps.bootstraps
+
+raxml-ng --support \
+--tree concat.bialelic.filtered.DP8.passed.vcf.min4.ascbias_FELS.raxml.bestTree \
+--bs-trees allbootstraps.bootstraps \
+--prefix concat.bialelic.filtered.DP8.passed.vcf.min4.ascbias_FELS.raxml --threads 1 
+```
+## Bayes factor species delimitation analysis (BFD*)
 
 
-RADseq: Phylogenetic analyses, species delimitation and Bayesian clustering
-Phylogenetic relationships were inferred using concatenation and species tree methods. The ML tree was constructed by RAxML-NG v.0.9.0 (Kozlov et al., 2019), employing GTR model with Felsenstein’s ascertainment bias correction. The vcf2phylip.py script (Ortiz, 2019) was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script ascbias.py (https://github.com/btmartin721/raxml_ascbias) as recommended by Leaché et al. (2015). 
+
+
 To provide statistical support for the delimitation of inferred genetic clusters in C. acris, Bayes factor species delimitation analysis (BFD*, Leaché et al., 2014) was performed following Leaché & Bouckaert (2018). Marginal likelihoods of species trees were inferred using the Path Sampling approach with the SNAPP v.1.4.2 (Bryant et al., 2012) and BEAST v. 2.5.0 (Bouckaert et al., 2014). The dataset was reduced to unlinked SNPs and three samples per each genetic cluster, except for C. acris subsp. vardousiae with two representative samples. Analyses were run in eight steps for each model, with 1,000,000 MCMC iterations, sampling every 1,000th, and a burn-in cutoff of 10%. Competing species delimitation models were ranked by comparing their marginal likelihood estimates and their support was assessed by calculating the Bayes factor (Kass & Raftery, 1995), as suggested by Leaché & Bouckaert (2018). The current taxonomy model, encompassing four taxa (C. anatolica and C. acris with three subspecies), was compared with four alternative species models based on the ML tree and Bayesian clustering outputs, where C. acris subsp. acris was split into several entities. The SNAPP package was further employed to estimate a coalescent-based species tree directly from SNP data (reduced as in BFD*), using the species model with the highest support in BFD* described above. Unlinked SNPs in binary nexus format were processed in the BEAUti, and 5,000,000 MCMC iterations were performed, logging every 1,000th tree. The consensus tree topology with the best posterior support was identified by TreeAnnotator (Drummond & Rambaut, 2007) with 10% burn-in. Samples from two populations (C005, C241) were excluded from the tree reconstruction methods and species delimitation analysis, as they were revealed to be of hybrid (allopolyploid) origins (see below).
 The STRUCTURE analysis was conducted as stated above for the Hyb-Seq data, based on 100 datasets produced by selecting a single random SNP from each RADseq locus containing at least six SNPs, using vcf_prune.py script (Šlenker, 2024).
 RADseq: Assessment of reticulation events and introgression
