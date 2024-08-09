@@ -184,7 +184,7 @@ cp inputSequences/*fna 1.7_congruent_and_labelled_files # sequences
 1.8) Labelling polyploid homeologs (see also [Labelling polyploid homeologs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#18-labelling-polyploid-homeologs))
 ```ruby
 cd 1.7_congruent_and_labelled_files
-parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD_orig/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
+parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
 ```
 Homeologs of polyploids, that fit the criteria in `polyconfig.pm` config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
 
@@ -203,17 +203,18 @@ for f in *label.reduced.fna; do
   for r in $(grep ">" $f | cut -f 1 -d ' '); do
     S=${r#>}
     S=${S%%.*}
-    mkdir -p ../2.1.one_allopolyploid_plus_diploids_ORIG/$S
-    grep -A 1 "$r" "$f" > ../2.1.one_allopolyploid_plus_diploids_ORIG/$S/"$bn""$r".fna
-    cat ../inputSequences2x/"$bn".fna >> ../2.1.one_allopolyploid_plus_diploids_ORIG/$S/"$bn""$r".fna
+    mkdir -p ../2.1.one_allopolyploid_plus_diploids/$S
+    grep -A 1 "$r" "$f" > ../2.1.one_allopolyploid_plus_diploids/$S/"$bn""$r".fna
+    cat ../inputSequences2x/"$bn".fna >> ../2.1.one_allopolyploid_plus_diploids/$S/"$bn""$r".fna
   done
 done
 ```
 
+2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 40% of bootstrap replicates. That means if some homeolog was originally labelled as "SharGramos" (step 1.8), we keep that particular sequence only if more than 200 BS trees (40%) were re-labelled as "SharGramos".
 
 
 
-but stricter criteria were applied later.
+
 
 
  
