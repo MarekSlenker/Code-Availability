@@ -9,9 +9,17 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[ASTRAL](#astral)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[PhyloSD](#phylosd)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[PhyloSD](#phylosd)<be>
+
+**[RADseq data processing](#radseq-data-processing)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Variant calling](#variant-calling)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 
 
@@ -287,42 +295,34 @@ gatk --java-options -Xmx16g HaplotypeCaller -R GCA_040955855.1_C_amara_ONT_v2_ge
 
 ```
 
+Next, all single-sample GVCFs were imported into GenomicsDB. 
 
-#### VCF vytvoris z GVCF
+Genomic intervals (-L) were equivalent to contigs. Each interval/contig was processed in a separate job.
 
-vsetky GVCF nakopirujes do jedneho priecinka
-LOCI je subor "LOCI.list", kde su nazvy sekvencii z pseudoreferencie, alebo tam das jeden konkretny fragment referenie (ak nema ref vela fragmentov)
-
+```ruby
 SAMPLELIST=$(find . -name "*.gvcf.gz" | sed 's/^\.\///' | sed 's/^/-V /' | tr "\n" " ")
 
 mkdir tmp
-
-gatk --java-options "-Xmx80g -XX:+UseSerialGC" GenomicsDBImport $SAMPLELIST --genomicsdb-workspace-path db.LOCI --batch-size 50 -L LOCI --tmp-dir ./tmp --reader-threads POCET_CPU_VLAKIEN >GenomicsDBImport.log.out 2>GenomicsDBImport.log_error.out
+gatk --java-options "-Xmx80g -XX:+UseSerialGC" GenomicsDBImport $SAMPLELIST \
+--genomicsdb-workspace-path db."$INTERVAL" \
+-L "$INTERVAL" \
+--batch-size 50 --tmp-dir ./tmp --reader-threads 4 >GenomicsDBImport.log.out 2>GenomicsDBImport.log_error.out
 
 gatk --java-options "-Xmx80g -XX:+UseSerialGC" GenotypeGVCFs -R GCA_040955855.1_C_amara_ONT_v2_genomic.fna \
-    -V gendb://db.LOCI \
-    -O LOCI.vcf.gz -L LOCI \
-    --tmp-dir ./tmp  >GenotypeGVCFs.log.out 2>GenotypeGVCFs.log_error.out
+-V gendb://db."$INTERVAL" \
+-O "$INTERVAL".vcf.gz \
+-L "$INTERVAL" \
+--tmp-dir ./tmp  >GenotypeGVCFs.log.out 2>GenotypeGVCFs.log_error.out
+```
 
-
-
-####
-#### VCF konkatenujes do jedneho suboru
-####
-
+All 944 VCFs, i.e. genotyped contigs, were concatenated using bcftools.
+```ruby
 bcftools concat -O z *.vcf.gz > concat.vcf.gz
+```
 
-
-
-
-
-
-
-
-
-The RADseq reads were mapped on the genome of C. amara (Šlenker et al., in prep.) using BWA 0.7.5a (Li, 2013) and the resulting BAM files were processed with Picard Toolkit 2.22.1. (https://broadinstitute.github.io/picard/). Variant calling was performed for each individual using the HaplotypeCaller module from the GATK 4.4.0.0 
-
-As next, variants were aggregated and genotyping across all individuals was performed using the GenomicsDBImport and GenotypeGVCFs modules. Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules. Finally, samples with more than 60 % missing genotypes were excluded. Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
+Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules.
+Finally, samples with more than 60 % missing genotypes were excluded.
+Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
 
 RADseq: Phylogenetic analyses, species delimitation and Bayesian clustering
 Phylogenetic relationships were inferred using concatenation and species tree methods. The ML tree was constructed by RAxML-NG v.0.9.0 (Kozlov et al., 2019), employing GTR model with Felsenstein’s ascertainment bias correction. The vcf2phylip.py script (Ortiz, 2019) was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script ascbias.py (https://github.com/btmartin721/raxml_ascbias) as recommended by Leaché et al. (2015). 
