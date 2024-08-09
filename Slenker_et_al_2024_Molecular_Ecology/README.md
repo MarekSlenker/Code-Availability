@@ -162,7 +162,7 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
 ## PhyloSD
 Due to the pipeline's requirement for a single representative of diploid genomes, the species tree from each gene tree was calculated by ASTRAL-III using [PhyloSD.1.ASTRALGeneTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.1.ASTRALGeneTrees.sh) script, merging 2x samples to the single representative, but keeping polyploids with separate (phased) alleles.  
 #### 1) NEAREST DIPLOID SPECIES NODE algorithm
-1.5) Root and sort nodes in trees, loosing bootstrap and aLRT supports on the way. (see also [.5) Root and sort nodes in trees..](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#15-root-and-sort-nodes-in-trees-loosing-bootstrap-and-alrt-supports-on-the-way))
+1.5) Root and sort nodes in trees, loosing bootstrap and aLRT supports on the way. (see also [Root and sort nodes in trees...](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#15-root-and-sort-nodes-in-trees-loosing-bootstrap-and-alrt-supports-on-the-way))
 ```ruby
 mkdir 1.5_RootAndSort
 parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD/_reroot_tree.pl {} > 1.5_RootAndSort/{.}.root.ph" ::: *astralTree
@@ -183,10 +183,32 @@ cp inputSequences/*fna 1.7_congruent_and_labelled_files # sequences
 
 1.8) Labelling polyploid homeologs (see also [Labelling polyploid homeologs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#18-labelling-polyploid-homeologs))
 ```ruby
+cd 1.7_congruent_and_labelled_files
 parallel -j 8 "echo {}; perl5.38.2 ./PhyloSD/bin/PhyloSD_orig/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
 ```
+Homeologs of polyploids, that fit the criteria in `polyconfig.pm` config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
 
 #### 2) BOOTSTRAPPING REFINEMENT algorithm
+
+2.1) Set the pruned FASTA alignments (diploids + outgroups + one polyploid homeolog) (see also [Set the pruned FASTA alignments (diploids + outgroups + one polyploid homeolog)](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#21-set-the-pruned-fasta-alignments-diploids--outgroups--one-polyploid-homeolog))  
+Each sequence from `label.reduced.fna` files has to be merged with 2x samples, and the correctness of attribution to 2x parental taxa will be tested by bootstrapping.
+```ruby
+# keep sequences of 2x only
+cp -r inputSequences inputSequences2x && cd inputSequences2x && sed -i '/acrisPP$/,+1 d' *fna
+
+cd 1.7_congruent_and_labelled_files
+mkdir ../2.1.one_allopolyploid_plus_diploids
+for f in *label.reduced.fna; do
+  bn=${f%.label.reduced.fna}
+  for r in $(grep ">" $f | cut -f 1 -d ' '); do
+    S=${r#>}
+    S=${S%%.*}
+    mkdir -p ../2.1.one_allopolyploid_plus_diploids_ORIG/$S
+    grep -A 1 "$r" "$f" > ../2.1.one_allopolyploid_plus_diploids_ORIG/$S/"$bn""$r".fna
+    cat ../inputSequences2x/"$bn".fna >> ../2.1.one_allopolyploid_plus_diploids_ORIG/$S/"$bn""$r".fna
+  done
+done
+```
 
 
 
