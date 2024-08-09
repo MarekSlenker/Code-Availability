@@ -258,7 +258,7 @@ plot(maf.coa$li[,1],maf.coa$li[,2], asp=1)
 
 
 # RADseq data processing
-## Variant calling
+## Variant calling & filtration
 Genome of C. amara ([GCA_040955855.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_040955855.1/)) was indexed, 
 ```ruby
 samtools faidx GCA_040955855.1_C_amara_ONT_v2_genomic.fna
@@ -320,9 +320,34 @@ All 944 VCFs, i.e. genotyped contigs, were concatenated using bcftools.
 bcftools concat -O z *.vcf.gz > concat.vcf.gz
 ```
 
-Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules.
-Finally, samples with more than 60 % missing genotypes were excluded.
-Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
+Filtering variant calls was done in the GATK 4.4.0.0.
+```ruby
+gatk --java-options "-Xmx70g" SelectVariants -V concat.vcf.gz -O concat.bialelic.vcf.gz --restrict-alleles-to BIALLELIC -select-type SNP --exclude-non-variants
+
+gatk --java-options "-Xmx70g" VariantFiltration \
+-V concat.bialelic.vcf.gz -O concat.bialelic.filtered.DP8.vcf.gz \
+--filter-expression 'QD < 2.0'  --filter-name 'QD' --filter-expression 'FS > 60.0' --filter-name 'FS' \
+--filter-expression 'MQ < 40.0' --filter-name 'MQ' --filter-expression 'MQRankSum < -12.5' --filter-name 'MQRS' \
+--filter-expression 'ReadPosRankSum < -8.0' --filter-name 'RPRS' --filter-expression 'SOR > 3.0' --filter-name 'SOR' \
+--genotype-filter-expression 'DP < 8' --genotype-filter-name 'DP' --set-filtered-genotype-to-no-call
+
+gatk --java-options "-Xmx70g" SelectVariants \
+-V concat.bialelic.filtered.DP8.vcf.gz -O concat.bialelic.filtered.DP8.passed.vcf.gz \
+--exclude-filtered  --max-nocall-fraction 0.6
+```
+
+To determine missing data per sample, VCF file was converted to phylip format using [vcf2phylip.py](https://github.com/edgardomortiz/vcf2phylip/blob/master/vcf2phylip.py) script and the percentage of missing data was calculated as the number of `N` divided by the total number of SNPs. The number of Ns was calculated by the following command:
+```ruby
+function countchar()
+{
+    while IFS= read -r i; do printf "%s" "$i" | tr -dc "$1" | wc -m; done
+}
+countchar 'N' <concat.bialelic.filtered.DP8.passed.vcf.min4.phy
+```
+
+
+## Phylogenetic analyses, species delimitation and Bayesian clustering
+
 
 RADseq: Phylogenetic analyses, species delimitation and Bayesian clustering
 Phylogenetic relationships were inferred using concatenation and species tree methods. The ML tree was constructed by RAxML-NG v.0.9.0 (Kozlov et al., 2019), employing GTR model with Felsenstein’s ascertainment bias correction. The vcf2phylip.py script (Ortiz, 2019) was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script ascbias.py (https://github.com/btmartin721/raxml_ascbias) as recommended by Leaché et al. (2015). 
