@@ -15,9 +15,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) tree](#maximum-likelihood-ml-tree)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Bayes factor species delimitation analysis (BFD*)](#bayes-factor-species-delimitation-analysis-bfd)<be>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure-1)<be>
+&nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks-1)<br>
 
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
