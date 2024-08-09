@@ -212,24 +212,43 @@ done
 
 2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 40% of bootstrap replicates. That means if some homeolog was originally labelled as "SharGramos" (step 1.8), we keep that particular sequence only if more than 200 BS trees (40%) were re-labelled as "SharGramos".
 
-2.18) "Homeologs' ML consensus tree". We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree from the concatenated alignment was computed in RAxML-NG, as described above.
+2.18) "Homeologs' ML consensus tree". We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree `PhyloSD.Cacris.raxml.bestTree` was computed in RAxML-NG from the concatenated alignment, as described above.
+
+
+#### 3) SUBGENOME ASSIGNMENT algorithm
+Sample acraC095.109 contains 2 close homeologs, EBalkan and Dinaric. This was done to see if those homeologs refer to the same subgenome. Using the following code, we computed patristic distances, PCoA-MST (Principal coordinates analysis-minimum spanning tree), in R.
+
+```R
+library(adephylo)
+library(ape)
+library(stats)
+
+tree = read.tree("PhyloSD.Cacris.raxml.bestTree")
+
+patristicDists = distTips(tree,   method = "patristic")
+
+distMatrix= as.matrix(patristicDists)
+
+poylploids = distMatrix[grep("acrisPP", colnames(distMatrix)),grep("acrisPP", colnames(distMatrix))]
+
+maf.coa <- dudi.pco(as.dist(poylploids), scannf = FALSE, nf = 3)
+
+maf.mst <- ade4::mstree(dist.dudi(maf.coa), 1)
+
+s.label(maf.coa$li, label = row.names(maf.coa$li),clab = 0.8,  cpoi = 2, neig = maf.mst, cnei = 1)
+
+plot(maf.coa$li[,1],maf.coa$li[,2], asp=1)
+```
+
+3.5) Amalgamate homeologs. Two homeologs of acraC095.109 were amalgamated. If both homeologs were present for the same gene, that with higher BS support was kept.
+
+3.6) Compute the Subgenomic ML consensus tree. The tree was computed in RAxML-NG.
+
+
+# RADseq data processing
 
 
 
-
-
- 
-
-Phased exon sequences of polyploids were processed by the PhyloSD pipeline (Sancho et al., 2022) to identify the homeologous diploid genomes. 
-Due to unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in Sancho et al., 2022), but stricter criteria were applied laterin the Bootstrapping Refinement step, requiring confirmation by at least 40% of bootstrap replicates. Homeologs’ ML consensus tree was constructed from the homeologs with at least 15% representation in the polyploid species. The Subgenome Assignment algorithm collapsed homeologs referring to the same subgenomes according to the principal coordinate analysis and superimposed minimum spanning tree generated from patristic distances (following Sancho et al., 2022), and the final Subgenomic ML consensus tree was constructed. 
-
-
-# don't read any further, I'm still working on it 
-# don't read any further, I'm still working on it
-
-
-
-RADseq data processing
 The RADseq reads were mapped on the genome of C. amara (Šlenker et al., in prep.) using BWA 0.7.5a (Li, 2013) and the resulting BAM files were processed with Picard Toolkit 2.22.1. (https://broadinstitute.github.io/picard/). Variant calling was performed for each individual using the HaplotypeCaller module from the GATK 4.4.0.0 (McKenna et al., 2010). As next, variants were aggregated and genotyping across all individuals was performed using the GenomicsDBImport and GenotypeGVCFs modules. Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules. Finally, samples with more than 60 % missing genotypes were excluded. Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
 
 RADseq: Phylogenetic analyses, species delimitation and Bayesian clustering
