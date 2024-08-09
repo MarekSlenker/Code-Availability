@@ -361,18 +361,15 @@ raxml-ng --support \
 --prefix concat.bialelic.filtered.DP8.passed.vcf.min4.ascbias_FELS.raxml --threads 1 
 ```
 ## Bayes factor species delimitation analysis (BFD*)
-VCF file was subsampled, invariant SNPs were removed, and one SNP per RAD locus was selected. The VCF file was converted to phylip using `vcf2phylip.py` and the input file for the BEAST was created in BEAUTi using SNAPP template. The BEAST was rum from the command line. 
+VCF file was subsampled, invariant SNPs were removed, and one SNP per RAD locus was selected. The VCF file was converted to phylip using `vcf2phylip.py` and the XML input file for the BEAST was created in BEAUTi using SNAPP template. The BEAST was rum from the command line. 
 ```ruby
 beast -threads 16 $INFILE > "$INFILE".log
 ```
-Different delimitation models were compared according to the value of the "marginal L estimate", and the Bayes factor (BF) was computed as $`BF = {2* (MLE1 − MLE0)}`$
+Different delimitation models were compared according to the value of the "marginal L estimate", and the Bayes factor (BF) was computed as $`BF = {2* (MLE1 − MLE0)}`$.  
+The SNAPP package was further employed to estimate a coalescent-based species tree directly from SNP data. The XML input file was created in BEAUTi, and the BEAST was rum from the command line as above. Topology with the best posterior support was inferred in the TreeAnnotator.
 
 
 
-
-
-
-The SNAPP package was further employed to estimate a coalescent-based species tree directly from SNP data (reduced as in BFD*), using the species model with the highest support in BFD* described above. Unlinked SNPs in binary nexus format were processed in the BEAUti, and 5,000,000 MCMC iterations were performed, logging every 1,000th tree. The consensus tree topology with the best posterior support was identified by TreeAnnotator (Drummond & Rambaut, 2007) with 10% burn-in. Samples from two populations (C005, C241) were excluded from the tree reconstruction methods and species delimitation analysis, as they were revealed to be of hybrid (allopolyploid) origins (see below).
 The STRUCTURE analysis was conducted as stated above for the Hyb-Seq data, based on 100 datasets produced by selecting a single random SNP from each RADseq locus containing at least six SNPs, using vcf_prune.py script (Šlenker, 2024).
 RADseq: Assessment of reticulation events and introgression
 Potential admixture and reticulation events were inferred using SNaQ (Solís-Lemus & Ané, 2016; Solís-Lemus et al., 2017), neighbor-net network, STRUCTURE (Pritchard et al., 2000), and Dsuite (Malinsky et al., 2021). The SNaQ analysis was calculated as described above for the Hyb-Seq data, with the following modifications: Concordance Factors were computed from unlinked SNP by R function SNPs2CF (Olave & Meyer, 2020), and a starting tree was inferred using Quartet MaxCut algorithm (Snir & Rao, 2012). To reduce computational demands, only a single individual per population was used, except for C. acris subsp. vardousiae where two samples were included. A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 (Huson & Bryant, 2006) based on Nei’s genetic distances (Nei, 1972) calculated in the StAMPP R package (Pembleton et al., 2013). To test complex patterns of heterogeneous introgression along the genome using the ABBA–BABA and related statistics (Durand et al., 2011), Dsuite (Malinsky et al., 2021) was employed. The D, f4-ratio, and f-branch statistics was calculated, omitting the putative hybrid populations. 
