@@ -12,7 +12,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[PhyloSD](#phylosd)<be>
 
 **[RADseq data processing](#radseq-data-processing)**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[Variant calling](#variant-calling)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
