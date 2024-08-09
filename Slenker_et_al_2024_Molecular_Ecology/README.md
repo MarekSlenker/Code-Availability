@@ -155,7 +155,7 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    sed -i '/.*rivularis.*rivularis.*rivularis/d' tableCF.astral.speciesNames.csv
    sed -i '/.*anatolica.*anatolica.*anatolica/d' tableCF.astral.speciesNames.csv
    ```
-6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl). Estimation of the optimal number of hybridizations followed [Choice of number of hybridizations](https://github.com/JuliaPhylo/PhyloNetworks.jl/wiki/Choice-of-number-of-hybridizations).
+6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. c. Estimation of the optimal number of hybridizations followed [Choice of number of hybridizations](https://github.com/JuliaPhylo/PhyloNetworks.jl/wiki/Choice-of-number-of-hybridizations).
 7. BS support was determined from ASTRAL bootstrap replicates (from raxml's bootstrap gene trees). ASTRAL BS trees were collected by
    ```ruby
    for F in astral.Assembly*; do
@@ -368,11 +368,58 @@ beast -threads 16 $INFILE > "$INFILE".log
 Different delimitation models were compared according to the value of the "marginal L estimate", and the Bayes factor (BF) was computed as $`BF = {2* (MLE1 − MLE0)}`$.  
 The SNAPP package was further employed to estimate a coalescent-based species tree directly from SNP data. The XML input file was created in BEAUTi, and the BEAST was rum from the command line as above. Topology with the best posterior support was inferred in the TreeAnnotator.
 
+## STRUCTURE
+The STRUCTURE analysis was conducted as stated above for the Hyb-Seq data, based on 100 datasets produced by selecting a single random SNP from each RADseq locus containing at least six SNPs, using [vcf_prune.py](https://github.com/MarekSlenker/vcf_prune/blob/main/vcf_prune.py) script.
+
+## SNaQ (PhyloNetworks)
+Concordance Factors were computed from unlinked SNP by R function [SNPs2CF](https://github.com/melisaolave/SNPs2CF/blob/master/functions_v1.6.R). 
+```ruby
+library(foreach);
+library(doMC);
+library(pegas);
+
+args = c("RADSeq.SNaQ.Cacris.vcf.min4.phy", # phylip format from VCF file
+        "Imap.txt",  # imap file, defining the individual – species associations
+        "RADSeq.SNaQ.Cacris.vcf.min4.phy.csv", # output name
+        TRUE    #  whether to explore species-quartet level only
+        )
+
+source("./functions_v1.6.R")
+
+SNPs2CF(seqMatrix = args[1],  
+        ImapName = args[2],
+        outputName = args[3],
+        cores = 8,
+        max.quartets = 1000000,
+        between.sp.only = args[4])
+```
+The `Imap.txt` file has following structure:
+```
+individuals	species
+243OSA4	EBalkan
+243OSA7	EBalkan
+243OSA9	EBalkan
+C015_101	Dinaric
+C015_102	Dinaric
+C015_103	Dinaric
+```
+
+The starting tree was inferred using Quartet MaxCut algorithm using [get-pop-tree.pl](https://github.com/nstenz/TICR/blob/master/scripts/get-pop-tree.pl) script. The script utilizes Quartet MaxCut, available [here](https://github.com/redavids/efficientquartets/blob/master/find-cut-Linux-64). 
+```ruby
+perl get-pop-tree.pl RADSeq.SNaQ.Cacris.vcf.min4.phy.csv
+```
+The snaq was computed using QMC tree and CFs, employing [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl) script. The BS trees were generated based on the final tree and CF values [PhyloNetworks.RADseq.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.RADseq.BS.jl).
 
 
-The STRUCTURE analysis was conducted as stated above for the Hyb-Seq data, based on 100 datasets produced by selecting a single random SNP from each RADseq locus containing at least six SNPs, using vcf_prune.py script (Šlenker, 2024).
-RADseq: Assessment of reticulation events and introgression
-Potential admixture and reticulation events were inferred using SNaQ (Solís-Lemus & Ané, 2016; Solís-Lemus et al., 2017), neighbor-net network, STRUCTURE (Pritchard et al., 2000), and Dsuite (Malinsky et al., 2021). The SNaQ analysis was calculated as described above for the Hyb-Seq data, with the following modifications: Concordance Factors were computed from unlinked SNP by R function SNPs2CF (Olave & Meyer, 2020), and a starting tree was inferred using Quartet MaxCut algorithm (Snir & Rao, 2012). To reduce computational demands, only a single individual per population was used, except for C. acris subsp. vardousiae where two samples were included. A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 (Huson & Bryant, 2006) based on Nei’s genetic distances (Nei, 1972) calculated in the StAMPP R package (Pembleton et al., 2013). To test complex patterns of heterogeneous introgression along the genome using the ABBA–BABA and related statistics (Durand et al., 2011), Dsuite (Malinsky et al., 2021) was employed. The D, f4-ratio, and f-branch statistics was calculated, omitting the putative hybrid populations. 
+support of the final net was inferred from CF values.
+
+
+...................
+
+
+
+
+A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 (Huson & Bryant, 2006) based on Nei’s genetic distances (Nei, 1972) calculated in the StAMPP R package (Pembleton et al., 2013). To test complex patterns of heterogeneous introgression along the genome using the ABBA–BABA and related statistics (Durand et al., 2011), Dsuite (Malinsky et al., 2021) was employed. The D, f4-ratio, and f-branch statistics was calculated, omitting the putative hybrid populations. 
 RADseq: The origin of polyploid populations
 To explore the origin of polyploid populations, the relatedness coefficient between the diploid lineages and each polyploid population was estimated, using the method-of-moment estimator implemented in PolyRelatedness (Huang et al., 2014). The distribution of relatedness was presented as violin plots and heatmap (Adler & Kelly, 2021; R Core Team, 2020)
 RADseq: Demographic modeling, patterns of genetic diversity and rarity
