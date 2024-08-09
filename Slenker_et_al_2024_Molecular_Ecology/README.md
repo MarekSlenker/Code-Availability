@@ -212,7 +212,7 @@ done
 
 2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 40% of bootstrap replicates. That means if some homeolog was originally labelled as "SharGramos" (step 1.8), we keep that particular sequence only if more than 200 BS trees (40%) were re-labelled as "SharGramos".
 
-2.18) "Homeologs' ML consensus tree". We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree `PhyloSD.Cacris.raxml.bestTree` was computed in RAxML-NG from the concatenated alignment, as described above.
+2.18) "Homeologs' ML consensus tree" (see also [2.18) Phylogenomic analysis of concatenated labelled, filtered and corrected genes/MSAs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#218-phylogenomic-analysis-of-concatenated-labelled-filtered--and-corrected-genesmsas-homeologs-ml-consensus-tree)). We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree `PhyloSD.Cacris.raxml.bestTree` was computed in RAxML-NG from the concatenated alignment, as described above.
 
 
 #### 3) SUBGENOME ASSIGNMENT algorithm
@@ -245,11 +245,84 @@ plot(maf.coa$li[,1],maf.coa$li[,2], asp=1)
 3.6) Compute the Subgenomic ML consensus tree. The tree was computed in RAxML-NG.
 
 
+
+
+
+
 # RADseq data processing
+## Variant calling
+Genome of C. amara ([GCA_040955855.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_040955855.1/)) was indexed, 
+```ruby
+samtools faidx GCA_040955855.1_C_amara_ONT_v2_genomic.fna
+java -jar $PICARD CreateSequenceDictionary R="GCA_040955855.1_C_amara_ONT_v2_genomic.fna"
+bwa index "GCA_040955855.1_C_amara_ONT_v2_genomic.fna"
+```
+
+and reads were mapped to reference using BWA
+```ruby
+bwa mem  -t $NCUP GCA_040955855.1_C_amara_ONT_v2_genomic.fna "$SAMPLE"*R1*f*q* "$SAMPLE"*R2*f*q* | samtools view -bu | samtools sort -l 9 -o "$SAMPLE".paired.bam
+```
+and further processed by PICARD.
+```ruby
+RUNNUMBER="1"
+RGLB="$SAMPLE".lib1
+RGPU="${RUNNUMBER}".unit1
+RGSM="$SAMPLE"
+
+mkdir tmp
+java -Xmx16g -XX:+UseSerialGC -Djava.io.tmpdir=tmp -jar "${PICARD}" AddOrReplaceReadGroups INPUT="$SAMPLE".paired.bam OUTPUT="$SAMPLE".rg.bam RGID="${RUNNUMBER}" RGLB="${RGLB}" RGPL="illumina" RGPU="${RGPU}" RGSM="${RGSM}" 
+
+java -Xmx16g -XX:+UseSerialGC -Djava.io.tmpdir=tmp -jar "${PICARD}" BuildBamIndex INPUT="$SAMPLE".rg.bam 
+
+limit=$(echo `ulimit -n` - 50 | bc)
+java -Xmx16g -XX:+UseSerialGC -Djava.io.tmpdir=tmp -jar "${PICARD}" MarkDuplicates I="$SAMPLE".rg.bam O="$SAMPLE".dedup.bam MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=$limit M=dup_metrics.log ASSUME_SORTED=true TAGGING_POLICY=All
+
+java -Xmx16g -XX:+UseSerialGC -Djava.io.tmpdir=tmp -jar "${PICARD}" BuildBamIndex INPUT="$SAMPLE".dedup.bam
+```
+
+Variant calling was performed for each individual (specifying ploidy level) using modules from the GATK 4.4.0.0.
+
+```ruby
+gatk --java-options -Xmx16g HaplotypeCaller -R GCA_040955855.1_C_amara_ONT_v2_genomic.fna -I "$SAMPLE".dedup.bam  -ERC GVCF -ploidy $PLOIDY --min-base-quality-score 20 --max-genotype-count 350 -O "$SAMPLE".gvcf.gz
+
+```
+
+
+#### VCF vytvoris z GVCF
+
+vsetky GVCF nakopirujes do jedneho priecinka
+LOCI je subor "LOCI.list", kde su nazvy sekvencii z pseudoreferencie, alebo tam das jeden konkretny fragment referenie (ak nema ref vela fragmentov)
+
+SAMPLELIST=$(find . -name "*.gvcf.gz" | sed 's/^\.\///' | sed 's/^/-V /' | tr "\n" " ")
+
+mkdir tmp
+
+gatk --java-options "-Xmx80g -XX:+UseSerialGC" GenomicsDBImport $SAMPLELIST --genomicsdb-workspace-path db.LOCI --batch-size 50 -L LOCI --tmp-dir ./tmp --reader-threads POCET_CPU_VLAKIEN >GenomicsDBImport.log.out 2>GenomicsDBImport.log_error.out
+
+gatk --java-options "-Xmx80g -XX:+UseSerialGC" GenotypeGVCFs -R GCA_040955855.1_C_amara_ONT_v2_genomic.fna \
+    -V gendb://db.LOCI \
+    -O LOCI.vcf.gz -L LOCI \
+    --tmp-dir ./tmp  >GenotypeGVCFs.log.out 2>GenotypeGVCFs.log_error.out
 
 
 
-The RADseq reads were mapped on the genome of C. amara (Šlenker et al., in prep.) using BWA 0.7.5a (Li, 2013) and the resulting BAM files were processed with Picard Toolkit 2.22.1. (https://broadinstitute.github.io/picard/). Variant calling was performed for each individual using the HaplotypeCaller module from the GATK 4.4.0.0 (McKenna et al., 2010). As next, variants were aggregated and genotyping across all individuals was performed using the GenomicsDBImport and GenotypeGVCFs modules. Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules. Finally, samples with more than 60 % missing genotypes were excluded. Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
+####
+#### VCF konkatenujes do jedneho suboru
+####
+
+bcftools concat -O z *.vcf.gz > concat.vcf.gz
+
+
+
+
+
+
+
+
+
+The RADseq reads were mapped on the genome of C. amara (Šlenker et al., in prep.) using BWA 0.7.5a (Li, 2013) and the resulting BAM files were processed with Picard Toolkit 2.22.1. (https://broadinstitute.github.io/picard/). Variant calling was performed for each individual using the HaplotypeCaller module from the GATK 4.4.0.0 
+
+As next, variants were aggregated and genotyping across all individuals was performed using the GenomicsDBImport and GenotypeGVCFs modules. Biallelic sites with a minimum sequencing depth of 8x, passing the filter parameters indicated by GATK’s best practices (Van der Auwera et al., 2013), and with no more than 30% of missing genotypes were captured using VariantFiltration and SelectVariants modules. Finally, samples with more than 60 % missing genotypes were excluded. Certain analyses required unlinked SNPs (see below), and this was achieved by selecting a single random SNP from each RADseq locus. The loci were identified following identifiRadLoci.workflow (Šlenker, 2024), requiring a minimum sequencing depth of 8x observed in at least 70% of the samples, and a minimum distance of 1,000 bp, collapsing regions less than 1,000 bp apart into a single RAD locus. 
 
 RADseq: Phylogenetic analyses, species delimitation and Bayesian clustering
 Phylogenetic relationships were inferred using concatenation and species tree methods. The ML tree was constructed by RAxML-NG v.0.9.0 (Kozlov et al., 2019), employing GTR model with Felsenstein’s ascertainment bias correction. The vcf2phylip.py script (Ortiz, 2019) was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script ascbias.py (https://github.com/btmartin721/raxml_ascbias) as recommended by Leaché et al. (2015). 
