@@ -155,8 +155,8 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
    sed -i '/.*rivularis.*rivularis.*rivularis/d' tableCF.astral.speciesNames.csv
    sed -i '/.*anatolica.*anatolica.*anatolica/d' tableCF.astral.speciesNames.csv
    ```
-6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. c. Estimation of the optimal number of hybridizations followed [Choice of number of hybridizations](https://github.com/JuliaPhylo/PhyloNetworks.jl/wiki/Choice-of-number-of-hybridizations).
-7. BS support was determined from ASTRAL bootstrap replicates (from raxml's bootstrap gene trees). ASTRAL BS trees were collected by
+6. Run snaq. The first run uses astral.tre, next runs start with the best hmax-1 network. Estimation of the optimal number of hybridizations followed [Choice of number of hybridizations](https://github.com/JuliaPhylo/PhyloNetworks.jl/wiki/Choice-of-number-of-hybridizations).
+7. ASTRAL BS trees were collected by
    ```ruby
    for F in astral.Assembly*; do
      echo $F
@@ -166,7 +166,8 @@ Reticulation events were inferred with 500 gene trees, computed from the longest
      cd ..
    done
    ```
-   and BS support was inferred by script [PhyloNetworks.5.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.5.BS.jl).
+   and BS trees were inferred in 500 replicates using [PhyloNetworks.5.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.5.BS.jl) script.
+8. The BS support of the best network was inferred from BS trees in the interactive job in Julia environment, following [PhyloNetworks.6.support.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.6.support.jl).
 
 ## PhyloSD
 Due to the pipeline's requirement for a single representative of diploid genomes, the species tree from each gene tree was calculated by ASTRAL-III using [PhyloSD.1.ASTRALGeneTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloSD.1.ASTRALGeneTrees.sh) script, merging 2x samples to the single representative, but keeping polyploids with separate (phased) alleles.  
