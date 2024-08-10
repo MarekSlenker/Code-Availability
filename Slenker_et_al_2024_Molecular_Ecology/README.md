@@ -9,18 +9,18 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[ASTRAL](#astral)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[PhyloSD](#phylosd)<be>
+&nbsp;&nbsp;&nbsp;&nbsp;[PhyloSD](#phylosd)<br>
 
 **[RADseq data processing](#radseq-data-processing)**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) tree](#maximum-likelihood-ml-tree)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[Bayes factor species delimitation analysis (BFD*)](#bayes-factor-species-delimitation-analysis-bfd)<be>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure-1)<be>
+&nbsp;&nbsp;&nbsp;&nbsp;[Bayes factor species delimitation analysis (BFD*)](#bayes-factor-species-delimitation-analysis-bfd)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure-1)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks-1)<br>
 
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<be>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 
 
@@ -408,13 +408,14 @@ The starting tree was inferred using Quartet MaxCut algorithm using [get-pop-tre
 ```ruby
 perl get-pop-tree.pl RADSeq.SNaQ.Cacris.vcf.min4.phy.csv
 ```
-The snaq was computed using QMC tree and CFs, employing [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl) script. The BS trees were generated based on the final tree and CF values [PhyloNetworks.RADseq.BS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.RADseq.BS.jl).
+The snaq was computed using QMC tree and CFs, employing [PhyloNetworks.4.snaq.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.4.snaq.jl) script. Five hundred BS trees have been generated based on the final tree and CF values, submitting [PhyloNetworks.5.RADseqBS.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.5.RADseqBS.jl) script 500 times. All BS trees were collected by 
+```ruby
+cat net*bootsnaq*.snaq.out > bootTrees
+```
+BS support of the final net was inferred from BS trees in the interactive job in Julia environment, following [PhyloNetworks.6.support.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.6.support.jl).
 
 
-support of the final net was inferred from CF values.
-
-
-...................
+---
 
 
 
