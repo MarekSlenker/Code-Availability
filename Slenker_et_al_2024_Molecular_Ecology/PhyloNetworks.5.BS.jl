@@ -3,6 +3,8 @@
 
 finalTree = ________  # final tree with the optimal number of reticulation events
 hmax = ____           # maximum number of hybridizations allowed
+rruns = _____ # number of independent starting points for the search
+run = ____   # integer, number of run. We used to submit the BS calculations in 500 independent jobs. 
 
 using PhyloNetworks
 using CSV
@@ -20,9 +22,9 @@ bootTrees = readBootstrapTrees("astral.BSlistfiles")
 
 ssed = rand(1234:9999)
 
-name = string("net.1.final.bootsnaq.", ssed, ".snaq")
+name = string("net", hhmax, ".bootsnaq.run", run, ".sed", ssed, ".snaq")
 
-bootnet = bootsnaq(net, bootTrees, hmax=hmax, nrep=1, runs=15,
+bootnet = bootsnaq(net, bootTrees, hmax=hmax, nrep=1, runs=rruns,
                    filename=name, seed=ssed)
 
 
