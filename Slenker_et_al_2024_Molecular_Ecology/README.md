@@ -20,11 +20,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[A neighbor-net network](#a-neighbor-net-network)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Dsuite](#dsuite)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[PolyRelatedness](#polyrelatedness)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[dadi](#dadi)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Stacks, summary statistics](#stacks-summary-statistics)<br>
+<br>
 
 
 # Hyb-Seq data processing
