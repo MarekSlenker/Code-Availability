@@ -17,9 +17,12 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[Bayes factor species delimitation analysis (BFD*)](#bayes-factor-species-delimitation-analysis-bfd)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure-1)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks-1)<br>
-
 &nbsp;&nbsp;&nbsp;&nbsp;[A neighbor-net network](#a-neighbor-net-network)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Dsuite](#dsuite)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[PolyRelatedness](#polyrelatedness)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 
@@ -441,12 +444,45 @@ Cacris.astralTree
 ## PolyRelatedness
 The relatedness coefficients were estimated in PolyRelatedness. VCF file was formatted to PolyRelatedness input file, and coefficients were calculated [PolyRelatedness.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.sh). Heatmap and violin plots were made in R [PolyRelatedness.plots.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.plots.R). 
 
+## dadi
+The site frequency spectra were analysed and projected using [easySFS](https://github.com/isaacovercast/easySFS). Projection values were chosen to maximize the number of segregating sites. 
+```ruby
+# projection preview
+easySFS.py \
+-i Cacris.vcf.gz \
+-p samplePair.popfile --preview -a
 
+# and the script was run with the projection values for each population
+easySFS.py \
+-i Cacris.vcf.gz \
+-p samplePair.popfile -a -f --proj=12,8
+```
+The popfile has the following structure
+```
+sample1 pop1
+sample2 pop1
+sample3 pop2
+sample4 pop2
+```
+The demographic history models were investigated using [dadi_pipeline](https://github.com/dportik/dadi_pipeline/tree/master), following the proposed optimization routine for 2D models ([dadi_Run_2D_Set.py](https://github.com/dportik/dadi_pipeline/blob/master/Two_Population_Pipeline/dadi_Run_2D_Set.py)). Each model was inferred in 50 independent runs. Model performance was summarized using [Summarize_Outputs.py](https://github.com/dportik/dadi_pipeline/blob/master/Two_Population_Pipeline/Summarize_Outputs.py) script and the best-fitting model was selected according to AIC and ∆AIC scores.
 
-RADseq: Demographic modeling, patterns of genetic diversity and rarity
-The demographic history underlying the observed patterns of divergence within the C. acris complex was investigated using the diffusion approximations to the allele frequency spectrum implemented in the dadi python package (Gutenkunst et al., 2009), utilizing the routine proposed by Portik et al. (2017). The site frequency spectra were analysed and projected using easySFS (https://github.com/isaacovercast/easySFS). Each model was inferred in 50 independent runs, and the best-fitting model was selected according to AIC (Akaike information criterion) and ∆AIC scores. The 2D analysis pipeline was applied to pairwise comparisons of the genetic lineages resolved within the C. acris complex, examining whether the observed divergence patterns resulted from vicariance with ancient or more recent gene flow (secondary contact), or due to past range expansion (founder event).
-Summary statistics of genetic diversity were calculated in each diploid population, comprising the nucleotide diversity (π), expected heterozygosity (He), observed heterozygosity (Ho), and private allele number (Ap), using the population program in Stacks v. 2.62 (Catchen et al., 2013). To avoid unequal sample sizes, six individuals with the lowest proportion of missing genotypes were selected per population.
+## Stacks, summary statistics
+Summary statistics of genetic diversity were calculated in each diploid population using the population program in Stacks.
 
+```ruby
+populations -V ../Cacris.2x.vcf.gz \
+-O statDir \
+-M popmat --fstats --smooth-popstats
+```
+The singletons and private doubletons were removed as follows:
+```ruby
+vcftools --gzvcf  Cacris.2x.vcf.gz --singletons --out Cacris.2x
+
+sed -i '1d' Cacris.2x.singletons
+cut -f 1,2 Cacris.2x.singletons > Cacris.2x.singletons.toRem
+
+vcftools --gzvcf  Cacris.2x.vcf.gz --exclude-positions Cacris.2x.singletons.toRem --recode --stdout | bgzip > Cacris.2x.singlDoublRemoved.vcf.gz
+```
 
 
 
