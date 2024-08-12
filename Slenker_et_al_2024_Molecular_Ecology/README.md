@@ -416,12 +416,31 @@ cat net*bootsnaq*.snaq.out > bootTrees
 BS support of the final net was inferred from BS trees in the interactive job in Julia environment, following [PhyloNetworks.6.support.jl](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PhyloNetworks.6.support.jl).
 
 
----
+## A neighbor-net network
+A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 based on Nei’s genetic distances calculated in the StAMPP R package [Neis_distances.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Neis_distances.R).
+
+## Dsuite
+The [Dsuite](https://github.com/millanek/Dsuite) was employed to test patterns of heterogeneous introgression along the genome using the ABBA–BABA statistics.
+The D, f4-ratio, and f-branch statistics were calculated following the Dsuite manual.
+```ruby
+Dsuite Dtrios -c \
+-n Cacris.Dsuite \
+-t Cacris.astralTree \
+Cacris.vcf.gz \
+Cacris.POPMATFILE
+
+Dsuite Fbranch -p 0.01 \
+Cacris.astralTree \
+Cacris.Dsuite_tree.txt > Cacris.Dsuite.Fbranch.01.txt
+
+python /home/mint/bin/Dsuite/utils/dtools.py \
+Cacris.Dsuite.Fbranch.01.txt \
+Cacris.astralTree
+```
 
 
 
 
-A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 (Huson & Bryant, 2006) based on Nei’s genetic distances (Nei, 1972) calculated in the StAMPP R package (Pembleton et al., 2013). To test complex patterns of heterogeneous introgression along the genome using the ABBA–BABA and related statistics (Durand et al., 2011), Dsuite (Malinsky et al., 2021) was employed. The D, f4-ratio, and f-branch statistics was calculated, omitting the putative hybrid populations. 
 RADseq: The origin of polyploid populations
 To explore the origin of polyploid populations, the relatedness coefficient between the diploid lineages and each polyploid population was estimated, using the method-of-moment estimator implemented in PolyRelatedness (Huang et al., 2014). The distribution of relatedness was presented as violin plots and heatmap (Adler & Kelly, 2021; R Core Team, 2020)
 RADseq: Demographic modeling, patterns of genetic diversity and rarity
