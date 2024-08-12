@@ -18,8 +18,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure-1)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[SNaQ (PhyloNetworks)](#snaq-phylonetworks-1)<br>
 
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[A neighbor-net network](#a-neighbor-net-network)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Dsuite](#dsuite)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 
@@ -438,11 +438,11 @@ Cacris.Dsuite.Fbranch.01.txt \
 Cacris.astralTree
 ```
 
+## PolyRelatedness
+The relatedness coefficients were estimated in PolyRelatedness. VCF file was formatted to PolyRelatedness input file, and coefficients were calculated [PolyRelatedness.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.sh). Heatmap and violin plots were made in R [PolyRelatedness.plots.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.plots.R). 
 
 
 
-RADseq: The origin of polyploid populations
-To explore the origin of polyploid populations, the relatedness coefficient between the diploid lineages and each polyploid population was estimated, using the method-of-moment estimator implemented in PolyRelatedness (Huang et al., 2014). The distribution of relatedness was presented as violin plots and heatmap (Adler & Kelly, 2021; R Core Team, 2020)
 RADseq: Demographic modeling, patterns of genetic diversity and rarity
 The demographic history underlying the observed patterns of divergence within the C. acris complex was investigated using the diffusion approximations to the allele frequency spectrum implemented in the dadi python package (Gutenkunst et al., 2009), utilizing the routine proposed by Portik et al. (2017). The site frequency spectra were analysed and projected using easySFS (https://github.com/isaacovercast/easySFS). Each model was inferred in 50 independent runs, and the best-fitting model was selected according to AIC (Akaike information criterion) and ∆AIC scores. The 2D analysis pipeline was applied to pairwise comparisons of the genetic lineages resolved within the C. acris complex, examining whether the observed divergence patterns resulted from vicariance with ancient or more recent gene flow (secondary contact), or due to past range expansion (founder event).
 Summary statistics of genetic diversity were calculated in each diploid population, comprising the nucleotide diversity (π), expected heterozygosity (He), observed heterozygosity (Ho), and private allele number (Ap), using the population program in Stacks v. 2.62 (Catchen et al., 2013). To avoid unequal sample sizes, six individuals with the lowest proportion of missing genotypes were selected per population.
