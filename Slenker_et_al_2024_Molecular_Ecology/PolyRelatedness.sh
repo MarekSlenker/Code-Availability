@@ -75,7 +75,17 @@ Cacris_sl.genotypes.t.polyrelatedness.OUT.txt e 1 0
 # extract rows with polyploids - for violin plots
 grep "C243" Cacris_sl.genotypes.t.polyrelatedness.OUT.txt > C243.txt
 grep "C192" Cacris_sl.genotypes.t.polyrelatedness.OUT.txt > C192.txt
-.......
+
+# change names of individual samples to groups and format it like follows:
+EBalkan	0.03217231
+EBalkan	0.03307605
+EBalkan	0.04385445
+Dinaric	-0.13874541
+Dinaric	-0.13717715
+Dinaric	-0.14527509
+matthioli	-0.10328201
+matthioli	-0.09993322
+
 
 
 
