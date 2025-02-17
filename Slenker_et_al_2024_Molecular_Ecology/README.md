@@ -1,5 +1,3 @@
-<table><tr><td>https://github.com/lifeparticle/Markdown-Cheatsheet</td></tr></table>
-
 ### Table of Contents
 **[Hyb-Seq data processing](#hyb-seq-data-processing)**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[HybPiper](#hybpiper)<br>
