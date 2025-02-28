@@ -4,7 +4,7 @@ library(vcfR)
 library(StAMPP)
 
 # IMPORT SNP dat from VCF - necessary to change path using setwd()
-vcf <- read.vcfR("BGhybridy.bialelic.filtered.passed.vcf.gz")   #read in all data
+vcf <- read.vcfR("BGhybridy.bialelic.filtered.DP8.subs.passed.m02.regs.vcf.gz")   #read in all data
 
 genlight <- vcfR2genlight.tri.MK(vcf) # run function at the end of the script
 
