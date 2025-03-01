@@ -137,6 +137,34 @@ raxml-ng --support \
 The relatedness coefficients were estimated in PolyRelatedness. VCF file was formatted to PolyRelatedness input file, and coefficients were calculated [PolyRelatedness.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.sh). Heatmap and violin plots were made in R [PolyRelatedness.plots.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.plots.R). 
 
 ## NewHybrids
+This analysis was performed on subsets of 100 loci, with each subset differentiating parental groups, namely matthioli-rivularis, amara-rivularis and acris-rivularis. We will demonstrate it using matthioli-rivularis.  
+
+We used `bcftools` to select samples from pure populations of matthioli and rivularis. The resulting vcf file was processed in R.
+```ruby
+library(adegenet)
+library(vcfR)
+
+vcf <- read.vcfR("BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.vcf.gz")
+
+# Converting VCF data to a genlight object
+
+genlight <- vcfR2genlight.tri.MK(vcf)  # you can find this function in the script Neis_distances.R
+locNames(genlight) <- paste(vcf@fix[,1],vcf@fix[,2],sep="_")   # add real SNP.names
+
+pop(aa.genlight) = c("riv","riv","riv", ... "mat","mat","mat")
+pops <- as.factor(c("riv","riv","riv", ... "mat","mat","mat"))
+
+diffs <- genetic_diff(vcf, pops = pops, method = 'nei')
+
+write.table(diffs, file = "BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff", quote = F, row.names = F)
+```
+
+Next, we selected only SNPs with Gprimest == 1 (see BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff file). To minimize the effects of linkage disequilibrium, one SNP per scaffold was selected, prioritizing those with the least missing data. The dataset was reduced to 100 SNPs by random selection. Next, we created several data sets, each containing samples from pure parental populations combined with samples from a single hybrid zone, and the subset of just identified SNPs. The SNP subsets were converted to the NewHybrids input format using [vcf_to_newhybrids_format.py](https://github.com/mscharmann/tools/blob/master/vcf_to_newhybrids_format.py). The `NewHybrids` was run using the following command.
+
+```ruby
+newhybrids-no-gui-linux.exe -d BGhybridy.....newhybrids.txt --burn-in 1000000 --num-sweeps 9000000 --no-gui > std_err_output.txt 2>&1
+```
+
 
 
 ## Hybrid index 
