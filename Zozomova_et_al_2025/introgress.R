@@ -10,23 +10,22 @@ vcf=read.vcfR("BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.no
 
 AdmixData<-extract.gt(vcf)
 
-riv=read.table("riv", header = F)
+riv=read.table("riv", header = F)  # names of samples of C. rivularis.
 cols=colnames(AdmixData)
 
-# niekedy je RIV 0/0 ,   a inokedy 1/1. cize musim to postupre skontrolovat, a nastavit patricne
+# sometimes rivularis is 0/0 and sometimes 1/1. I need to check it and set P1/P1 for rivularis, regardless of 0/0 or 1/1
 for (i in 1:dim(AdmixData)[1]) {
-  if ( # ak je u RIV dominantna 0
+  if ( # RIV is 0/0
     length(which((na.omit(unlist(strsplit(AdmixData[i, which(cols %in%  riv$V1)], split = "/"))))=="0")) > length(which((na.omit(unlist(strsplit(AdmixData[i, which(cols %in%  riv$V1)], split = "/"))))=="1"))
   ) {
     AdmixData[i, which(AdmixData[i,] == "0/0")] = "P1/P1"
     AdmixData[i, which(AdmixData[i,] == "1/1")] = "P2/P2"
-  } else { # u RIV je dominantna 1
+  } else { #  RIV is 1/1
     AdmixData[i, which(AdmixData[i,] == "1/1")] = "P1/P1"
     AdmixData[i, which(AdmixData[i,] == "0/0")] = "P2/P2"
   }
 }
 
-# na ostatnych nezaezi
 AdmixData[which(AdmixData[,] == "0/1")] = "P1/P2"
 AdmixData[which(AdmixData[,] == "NA")] = "NA/NA"
 
