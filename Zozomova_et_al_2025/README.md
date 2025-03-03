@@ -169,7 +169,10 @@ newhybrids-no-gui-linux.exe -d BGhybridy.....newhybrids.txt --burn-in 1000000 --
 
 ## Hybrid index 
 
+The hybrid index was calculated in `GenoDive v. 3.06`, following GenoDive manual. Another estimation of hybrid index and interspecific heterozygosity was done using `Introgress` R package.  
 
+  
+Unlike GenoDive (which accepts the full data matrix and polyploids), Introgress was run on a subset of SNPs that differed between the parental populations (those identified for `NewHybrids`, but not reduced to 100 SNPs). The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025/introgress.R) script.
 
 
 
