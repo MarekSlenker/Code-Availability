@@ -3,9 +3,6 @@ This repository stores scripts and commands used for the analysis of RADseq data
 
 ### Table of Contents
 
-Demultiplexing, quality filtering and deduplication
-
-
 &nbsp;&nbsp;&nbsp;&nbsp;[Demultiplexing, quality filtering and deduplication](#demultiplexing-quality-filtering-and-deduplication)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
