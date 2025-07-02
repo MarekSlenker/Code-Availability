@@ -136,6 +136,8 @@ python3 <PATH>/quartetsampling/bin/pysrc/quartet_sampling.py \
 --reps 1000 \
 --threads 16 --lnlike 2
 ```
+The results were visualised using [quartetsampling.r](https://github.com/tomas-fer/scripts/blob/master/quartetsampling.r) script from Tomas Fer's repo.
+
 
 
 
