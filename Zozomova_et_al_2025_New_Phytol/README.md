@@ -168,7 +168,22 @@ write.table(diffs, file = "BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bez
 
 Next, we selected only SNPs with Gprimest == 1 (see Ghybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff file). To minimize the effects of linkage disequilibrium, one SNP per scaffold was selected, prioritizing those with the least missing data.  
 
-The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/introgress.R) script.
+The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/introgress.R) script.  
+
+
+## Bayesian estimation of genomic clines (BGC)
+
+Patterns of differential introgression were examined using Bayesian estimation of genomic clines (BGC). 
+Unlinked SNPs (single SNP per each RADseq locus) were selected using [vcf_prune.py](https://github.com/MarekSlenker/vcf_prune/blob/main/vcf_prune.py) script. 
+Next, VCFs were parsed to the BCG format using 
+[vcf2bgc.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/vcf2bgc.R), and BGC was calculated using [BGC.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/BGC.sh) and evaluated by [evalBGC.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/evalBGC.R) script.
+
+## ABBA_BABA
+
+The computations were run using the [ABBA_BABA.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/ABBA_BABA.sh) script, following Simon Martin (https://github.com/simonhmartin/tutorials/tree/master/ABBA_BABA_whole_genome).
+
+
+
 
 
 
