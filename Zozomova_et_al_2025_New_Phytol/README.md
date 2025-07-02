@@ -129,19 +129,19 @@ The STRUCTURE analysis was conducted on 100 datasets produced by selecting a sin
 
 
 ## A neighbor-net network
-A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 based on Nei’s genetic distances calculated in the StAMPP R package [Neis_distances.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/Neis_distances.R).
+A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 based on Nei’s genetic distances calculated in the StAMPP R package [Neis_distances.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/Neis_distances.R).
 
 
 
 ## PCA
-The principal component analysis (PCA) based on covariance matrix, as implemented in the R package adegenet was calculated using [PCA.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/PCA.R) script.
+The principal component analysis (PCA) based on covariance matrix, as implemented in the R package adegenet was calculated using [PCA.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/PCA.R) script.
 
 
 
 
 ## Maximum likelihood (ML) tree
 The [vcf2phylip.py](https://github.com/edgardomortiz/vcf2phylip/blob/master/vcf2phylip.py) script was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script [ascbias.py](https://github.com/btmartin721/raxml_ascbias).
-The ML tree was constructed by RAxML-NG v.0.9.0, employing GTR model with Lewis’s ascertainment bias correction using script [MLTree.1.bestTree.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/MLTree.1.bestTree.sh). Bootstrap analyses were performed using 500 replicates [MLTree.2.BS_trees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/MLTree.2.BS_trees.sh), and the final tree with BS support was inferred using 
+The ML tree was constructed by RAxML-NG v.0.9.0, employing GTR model with Lewis’s ascertainment bias correction using script [MLTree.1.bestTree.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/MLTree.1.bestTree.sh). Bootstrap analyses were performed using 500 replicates [MLTree.2.BS_trees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/MLTree.2.BS_trees.sh), and the final tree with BS support was inferred using 
 ```ruby
 cat *.raxml.bootstraps > allbootstraps.bootstraps
 
@@ -187,7 +187,7 @@ write.table(diffs, file = "BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bez
 
 Next, we selected only SNPs with Gprimest == 1 (see Ghybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff file). To minimize the effects of linkage disequilibrium, one SNP per scaffold was selected, prioritizing those with the least missing data.  
 
-The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/introgress.R) script.  
+The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_New_Phytol/introgress.R) script.  
 
 
 ## Bayesian estimation of genomic clines (BGC)
