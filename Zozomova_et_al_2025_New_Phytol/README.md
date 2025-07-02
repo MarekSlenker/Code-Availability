@@ -136,8 +136,15 @@ raxml-ng --support \
 ## PolyRelatedness
 The relatedness coefficients were estimated in PolyRelatedness. VCF file was formatted to PolyRelatedness input file, and coefficients were calculated [PolyRelatedness.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.sh). Heatmap and violin plots were made in R [PolyRelatedness.plots.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/PolyRelatedness.plots.R). 
 
-## NewHybrids
-This analysis was performed on subsets of 100 loci, with each subset differentiating parental groups, namely matthioli-rivularis, amara-rivularis and acris-rivularis. We will demonstrate it using matthioli-rivularis.  
+
+
+
+## Hybrid index 
+
+The hybrid index was calculated in `GenoDive v. 3.06`, following GenoDive manual. Another estimation of hybrid index and interspecific heterozygosity was done using `Introgress` R package.  
+
+  
+Unlike GenoDive (which accepts the full data matrix and polyploids), `Introgress` was run on a subset of SNPs that differed between the parental populations. Selection of subset of SNPs will be demonstrate using matthioli-rivularis.  
 
 We used `bcftools` to select samples from pure populations of matthioli and rivularis. The resulting vcf file was processed in R.
 ```ruby
@@ -159,41 +166,9 @@ diffs <- genetic_diff(vcf, pops = pops, method = 'nei')
 write.table(diffs, file = "BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff", quote = F, row.names = F)
 ```
 
-Next, we selected only SNPs with Gprimest == 1 (see BGhybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff file). To minimize the effects of linkage disequilibrium, one SNP per scaffold was selected, prioritizing those with the least missing data. The dataset was reduced to 100 SNPs by random selection. Next, we created several data sets, each containing samples from pure parental populations combined with samples from a single hybrid zone, and the subset of just identified SNPs. The SNP subsets were converted to the NewHybrids input format using [vcf_to_newhybrids_format.py](https://github.com/mscharmann/tools/blob/master/vcf_to_newhybrids_format.py). The `NewHybrids` was run using the following command.
+Next, we selected only SNPs with Gprimest == 1 (see Ghybridy.bialelic.filtered.DP8.passed.m02.inRegs.bezOutgroups.noInvs.MatRiv.diff file). To minimize the effects of linkage disequilibrium, one SNP per scaffold was selected, prioritizing those with the least missing data.  
 
-```ruby
-newhybrids-no-gui-linux.exe -d BGhybridy.....newhybrids.txt --burn-in 1000000 --num-sweeps 9000000 --no-gui > std_err_output.txt 2>&1
-```
-
-
-
-## Hybrid index 
-
-The hybrid index was calculated in `GenoDive v. 3.06`, following GenoDive manual. Another estimation of hybrid index and interspecific heterozygosity was done using `Introgress` R package.  
-
-  
-Unlike GenoDive (which accepts the full data matrix and polyploids), Introgress was run on a subset of SNPs that differed between the parental populations (those identified for `NewHybrids`, but not reduced to 100 SNPs). The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/introgress.R) script.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+The triploid genotypes were converted into the diploid ones (preserving homozygote and heterozygote genotypes; i.e. 0/0/0 -> 0/0, 0/0/1 -> 0/1, 0/1/1 -> 0/1, 1/1/1 -> 1/1). Indices were calculated using [introgress.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Zozomova_et_al_2025_Mol_Biol_Evol/introgress.R) script.
 
 
 
