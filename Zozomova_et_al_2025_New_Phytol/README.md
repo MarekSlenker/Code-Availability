@@ -1,5 +1,27 @@
 This repository stores scripts and commands used for the analysis of RADseq data for the paper Zozomova et al. 2025
 
+
+### Table of Contents
+
+Demultiplexing, quality filtering and deduplication
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;[Demultiplexing, quality filtering and deduplication](#demultiplexing-quality-filtering-and-deduplication)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[A neighbor-net network](#a-neighbor-net-network)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[PCA](#pca)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) tree](#maximum-likelihood-ml-tree)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[PolyRelatedness](#polyrelatedness)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Hybrid index](#hybrid-index)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Bayesian estimation of genomic clines (BGC)](#bayesian-estimation-of-genomic-clines-bgc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[ABBA_BABA](#abba_baba)<br>
+
+<br>
+
+
+
+
 ## Demultiplexing, quality filtering and deduplication
 Raw reads were demultiplexed using [rad_1_demultiplexing_1_qsub.sh](https://github.com/V-Z/RAD-Seq-scripts/blob/master/bin/rad_1_demultiplexing_1_qsub.sh) and [rad_1_demultiplexing_2_run.sh](https://github.com/V-Z/RAD-Seq-scripts/blob/master/bin/rad_1_demultiplexing_2_run.sh) scripts.  
 
