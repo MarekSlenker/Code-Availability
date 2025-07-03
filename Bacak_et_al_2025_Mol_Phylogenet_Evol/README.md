@@ -151,23 +151,118 @@ A neighbor-net network was created using the NeighborNet algorithm in SplitsTree
 
 
 
+## Bayes factor species delimitation analysis (BFD*)
+VCF file was subsampled, invariant SNPs were removed, and one SNP per RAD locus was selected. The VCF file was converted to phylip using `vcf2phylip.py` and the XML input file for the BEAST was created in BEAUTi using SNAPP template. The BEAST was run from the command line. 
+
+```ruby
+beast -threads 16 $INFILE > "$INFILE".log
+```
+Different delimitation models were compared according to the value of the "marginal L estimate", and the Bayes factor (BF) was computed as $`BF = {2* (MLE1 − MLE0)}`$.  
+The SNAPP package was further employed to estimate a coalescent-based species tree directly from SNP data. The XML input file was created in BEAUTi, and the BEAST was run from the command line as above. Topology with the best posterior support was inferred in the TreeAnnotator.
+
+
+## Dsuite
+The [Dsuite](https://github.com/millanek/Dsuite) was employed to test patterns of heterogeneous introgression along the genome using the ABBA–BABA statistics.
+The D, f4-ratio, and f-branch statistics were calculated following the Dsuite manual.
+```ruby
+Dsuite Dtrios -c \
+-n Erysimum.odoratum_karpatske.Dsuite \
+-t Erysimum.odoratum_karpatske.filtered.DP8.passed.m02.inRegs.ascbias__FELS.bezDiffusumCroaticum.bezOdoratum.astralTree \
+Erysimum.odoratum_karpatske.filtered.DP8.passed.m02.inRegs.bezDiffusumCroaticum.bezOdoratum.vcf.gz \
+Erysimum.odoratum_karpatske.bezDiffusumCroaticum.bezOdoratum.map
+
+Dsuite Fbranch -p 0.01 \
+Erysimum.odoratum_karpatske.filtered.DP8.passed.m02.inRegs.ascbias__FELS.bezDiffusumCroaticum.bezOdoratum.astralTree \
+Erysimum.odoratum_karpatske.bezDiffusumCroaticum_Erysimum.odoratum_karpatske.bezDiffusumCroaticum_tree.txt \
+> Erysimum.odoratum_karpatske.bezDiffusumCroaticum_Erysimum.odoratum_karpatske.bezDiffusumCroaticum_Fbranch.01.txt
+
+python /home/mint/bin/Dsuite/utils/dtools.py \
+Erysimum.odoratum_karpatske.bezDiffusumCroaticum_Erysimum.odoratum_karpatske.bezDiffusumCroaticum_Fbranch.01.txt \
+Erysimum.odoratum_karpatske.filtered.DP8.passed.m02.inRegs.ascbias__FELS.bezDiffusumCroaticum.bezOdoratum.astralTree
+```
+
+# Hyb-Seq data processing
+
+## HybPiper
+The Hyb-Seq reads were processed using [HybPiper v. 2.2.0](https://github.com/mossmatters/HybPiper/releases/tag/v2.2.0)  
+
+
+```ruby
+hybpiper assemble  \
+--readfiles "$SAMPLE".trm.R1.fq --readfiles "$SAMPLE".trm.R2.fq \
+--targetfile_dna "$(basename "$BAITFILE")" --bwa \
+--cpu 4 --prefix "$SAMPLE" --hybpiper_output "$SAMPLE"
+
+hybpiper retrieve_sequences supercontig --targetfile_dna $BAITFILE --sample_names namelist
+```
+
+Consensus sequences were aligned using MAFFT v. 7.450, flanking regions and sites with gaps in more than 25% of sequences were removed using the R package ips in R 4.0.0. 
+```R
+library("ape")
+library("ips")
+
+seq = read.dna(file=args[1], format="fasta")
+aln = mafft(x=seq, method="auto", maxiterate=100, exec="/software/mafft/7.313/bin/mafft")
+
+aln.trm = deleteEmptyCells(DNAbin=aln)
+aln.trm = trimEnds(aln.trm, min.n.seq = nrow(aln.trm)*0.98)
+aln.trm = deleteGaps(x=aln.trm, gap.max=round(nrow(aln.trm)/4))
+aln.trm = del.colgapsonly(x=aln.trm, threshold=0.1, freq.only=FALSE)
+aln.trm = deleteEmptyCells(DNAbin=aln.trm)
+
+write.dna(x=aln.trm, file=args[2], format="fasta", append=FALSE, nbcol=-1, colsep="", colw=80) 
+```
+
+
+## HybPhaser
+Next, we used HybPhaser to identify highly variable sequences (indicative of potential paralogs; employing 2x samples only), following [1. SNP assessment](https://github.com/LarsNauheimer/HybPhaser?tab=readme-ov-file#1-snp-assessment), although with some modifications, since we did not use the HybPiper results folder as input data, but only cleaned sequences of 2x samples.  
+Sequences, with SNPs coded with iupac ambiguity codes were created by script 
+[HybPhaser.1.Consensus_sequence_generation.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/HybPhaser.1.Consensus_sequence_generation.sh), 
+table with the proportions of SNPs in each locus and sample was created by [HybPhaser.2a.count_snps.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/HybPhaser.2a.count_snps.R), and tables and graphs to assess the variability of sequences were created by the script 
+[HybPhaser.2b.assess_dataset.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/HybPhaser.2b.assess_dataset.R).
+
+Highly variable sequences, where the proportion of SNPs exceeded 5% were excluded from subsequent processing.
+
+
+## Maximum likelihood (ML) trees
+The best-fitting substitution model was determined for each alignment using the ModelFinder function of `IQ-TREE`. 
+Inferred model was parsed to RAxML format using [ML_Trees.PhyhlogenyModelParser.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.PhyhlogenyModelParser.sh), and the best-scoring ML tree with bootstrap support was inferred by `raxml-ng` (see [ML_Trees.RAxML-NG.IQ_TREE.1seq.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.RAxML-NG.IQ_TREE.1seq.sh) script).
+
+
+## ASTRAL
+For the species tree reconstruction, internal branches with bootstrap support ≤20% were collapsed using Newick-Utilities v. 1.6. 
+```ruby
+parallel "nw_ed  {} 'i & b<20' o > ./{}.BS20" ::: *support
+```
+The species tree was constructed employing a multispecies coalescent model implemented in ASTRAL-III, including the computation of local posterior probabilities to evaluate branch support.
+```ruby
+cat *.BS20 > bs20_trees
+java -jar ~/bin/astral.5.7.8/astral.5.7.8.jar -i bs20_trees -o astralTree.tree --namemapfile namemapfile -t 4 -r 10000
+```
+
+
+
+## Read-backed phasing
+The code (roughly) follows the procedures outlined in the [alleles_workflow](https://github.com/mossmatters/phyloscripts/tree/master/alleles_workflow) GitHub repository. The following scripts implement these procedures.  
+The sequences of each sample are phased by [Phasing.1.phasing_oneSample.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Phasing.1.phasing_oneSample.sh). This script takes consensus sequences and fastq reads at the input and produces phased sequences `"$SAMPLE".v1.phased.fasta, "$SAMPLE".v2.phased.fasta, ...` and unphased `"$SAMPLE".unPhased.fasta` sequences. You need to run this script for all samples.  
+Phased sequences are sometimes represented by multiple mutually unphased blocks (take a look at `"$SAMPLE".whatshap.gtf`). Selection of the longest phased block and masking of the remaining variant is the responsibility of [Phasing.2.masking.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/Phasing.2.masking.sh) script. Phased sequences are written to RESDIR directory. This script works with all samples simultaneously, using files produced by the previous script.   
+
+The SAMPLEPLOIDYLIST file needed for <ins>Phasing.2.masking.sh</ins> has the following structure (sample1 \n ploidy of sample1 \n sample2 \n ploidy of sample2 \n ....)  
+```
+acraBAB6
+2
+acraC003_104
+2
+acraC018_101
+4
+acraC095_109
+3
+acraC149_8
+2
+```
 
 
 
 
 
-
-
-
-
-
-
-
-Further insight into the overall genetic structure was obtained using a Bayesian clustering approach implemented in STRUCTURE v. 2.3.4 (Pritchard et al. 2000) and a neighbor-net network in SplitsTree4 (Huson and Bryant, 2006). STRUCTURE analysed 100 datasets, each containing a single randomly selected SNP from RADseq loci with at least six SNPs, using the vcf_prune.py script (Šlenker, 2024). Calculations were performed and summarized as described in Šlenker et al. (2021). For the neighbor-net (NN) analysis, Nei’s genetic distances (Nei 1972) were calculated in the R package StAMPP (Pembleton et al. 2013) using R 4.4.0 (R Core Team 2024).  
-Furthermore, a Bayes factor species delimitation analysis (BFD*, Leaché et al., 2014; Leaché and Bouckaert, 2018) was performed to statistically validate the genetic clusters within the Carpathian diploids (corresponding to E. witmannii s.l. and E. vagicum). Marginal likelihoods of species trees were derived using the Path Sampling approach with SNAPP v.1.4.2 (Bryant et al., 2012) and BEAST v. 2.5.0 (Bouckaert et al., 2014). The dataset of unlinked SNPs was used, which was reduced to three samples per genetic cluster, except for the smallest cluster Vihorlat, where only 2 samples were selected. Analyses were run in eight steps for each model, with 1,000,000 MCMC iterations, sampling every 1,000th, and a burn-in cutoff of 10%. Competing species delimitation models were ranked by comparing their marginal likelihood estimates and their support was assessed by calculating the Bayes factor (Kass and Raftery, 1995), as suggested by Leaché and Bouckaert (2018). Seven alternative species models were explored, either keeping the Carpathian diploids as one unit or splitting them into two to four entities, taking into account the ML tree, NN and STRUCTURE clustering results. Moreover, TreeAnnotator (Drummond and Rambaut, 2007) was used to summarise the posterior distribution of species trees and to identify the topology with the best posterior support, using the species model with the highest support in BFD* described above.
-Polyploid origins and potential reticulation and introgression events in diploids were also examined using SNaQ (Solís-Lemus and Ané, 2016; Solís-Lemus et al., 2017) and Dsuite (Malinsky et al., 2021). For the SNaQ analysis, concordance factors were calculated from unlinked SNPs using the R function SNPs2CF (Olave and Meyer, 2020), and a starting tree was inferred using the Quartet MaxCut algorithm (Snir and Rao, 2012). To reduce computational demands,  the Carpathian diploids (E. witmannii s.l. and E. vagicum) were kept as a single entity. To test complex patterns of heterogeneous introgression along the genome using the ABBA–BABA and related statistics (Durand et al., 2011), Dsuite (Malinsky et al., 2021) was used, which calculates the D, f4-ratio, and f-branch statistics. For this analysis, Carpathian diploids were sorted into four entities following the results of BFD*.
-The RADseq reads were also utilized to obtain data from plastomes. The reads were mapped to the plastome of E. cheiranthoides (GenBank accession number MN207123.1), processed, and the ML tree was constructed in RAxML-NG as described above.
-
-Hyb-Seq data processing
-The Hyb-Seq reads were processed using HybPiper v. 2.2.0 (Johnson et al., 2016) to extract consensus sequences of targeted exons. Highly variable sequences (indicative of potential paralogs), where the proportion of SNPs exceeded 5% were excluded from subsequent processing (identified using HybPhaser; https://github.com/LarsNauheimer/HybPhaser), resulting in 964 sequences (exons/supercontigs). Consensus sequences were aligned using MAFFT v. 7.450 (Katoh and Standley, 2013), and flanking regions and sites with gaps in more than 25% of sequences were removed using the R package ips (Heibl, 2008 onward) in R 4.4.0 (R Core Team, 2024). ML trees were inferred in RAxML-NG using the best-fitting substitution models as determined by the ModelFinder function of IQ-TREE v.1.6.12 (Chernomor et al., 2016; Kalyaanamoorthy et al., 2017) based on the Bayesian information criterion. Bootstrap analyses were performed using 500 replicates. For the species tree reconstruction, internal branches with bootstrap support ≤20% were collapsed using Newick-Utilities v. 1.6 (Junier and Zdobnov, 2010). The species tree was constructed employing a multispecies coalescent model implemented in ASTRAL-III (Zhang et al., 2018), including computation of local posterior probabilities to evaluate branch support (Sayyari and Mirarab, 2016).
-The supercontig sequences of polyploid accessions of E. odoratum were further processed for read-backed phasing to infer allele sequences, as described in detail in Šlenker et al. (2021). We applied four different methods to identify homeologous diploid subgenomes and the most likely parental species or lineages: PhyloSD (Sancho et al., 2022), EPA-ng (Barbera et al., 2019), AlleleSorting (Šlenker et al., 2021), and GRAMPA (Thomas et al., 2017). In the PhyloSD approach we followed the pipeline by Sancho et al. (2022) with some modifications. Due to the pipeline's requirement for a single representative of diploid genomes, we calculated species tree of each gene using ASTRAL- III. Due to unacceptable loss of data, we did not discard incongruent diploid skeletons (unlike in Sancho et al. 2022), but rather applied stricter criteria in the Bootstrapping Refinement step,  keeping only the homeologs that were confirmed by at least 20% of bootstrap replicates. Only the major homeolog-types (those with at least 12-15% representation in the polyploid genome) were further processed with the “Subgenome Assignment” algorithm and used for the subgenomic tree constructions in RAxML-NG. The subgenomic ML trees were finally summarized in ASTRAL-III. In the AlleleSorting approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, labelled to attribute them to different subgenomes (Šlenker et al. 2021), and treated as independent accessions in the coalescent based species tree inference in ASTRAL-III. EPA-ng (Barbera et al., 2019), a reimplementation of the evolutionary placement algorithm (EPA), performs maximum likelihood-based placement of allelic sequences onto a reference phylogenetic tree. Only placements with a likelihood weight ratio greater than 0.9 were considered significant and subsequently used for species tree inference in ASTRAL-III. Finally, GRAMPA (Gene-tree Reconciliation Algorithm with MUL-trees for Polyploid Analysis) uses an algorithm for counting gene duplications and losses to identify polyploidy events, distinguishing between allo- and autopolyploid, and place them on a phylogeny (Thomas et al., 2017). 
+We applied four different methods to identify homeologous diploid subgenomes and the most likely parental species or lineages: PhyloSD (Sancho et al., 2022), EPA-ng (Barbera et al., 2019), AlleleSorting (Šlenker et al., 2021), and GRAMPA (Thomas et al., 2017). In the PhyloSD approach we followed the pipeline by Sancho et al. (2022) with some modifications. Due to the pipeline's requirement for a single representative of diploid genomes, we calculated species tree of each gene using ASTRAL- III. Due to unacceptable loss of data, we did not discard incongruent diploid skeletons (unlike in Sancho et al. 2022), but rather applied stricter criteria in the Bootstrapping Refinement step,  keeping only the homeologs that were confirmed by at least 20% of bootstrap replicates. Only the major homeolog-types (those with at least 12-15% representation in the polyploid genome) were further processed with the “Subgenome Assignment” algorithm and used for the subgenomic tree constructions in RAxML-NG. The subgenomic ML trees were finally summarized in ASTRAL-III. In the AlleleSorting approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, labelled to attribute them to different subgenomes (Šlenker et al. 2021), and treated as independent accessions in the coalescent based species tree inference in ASTRAL-III. EPA-ng (Barbera et al., 2019), a reimplementation of the evolutionary placement algorithm (EPA), performs maximum likelihood-based placement of allelic sequences onto a reference phylogenetic tree. Only placements with a likelihood weight ratio greater than 0.9 were considered significant and subsequently used for species tree inference in ASTRAL-III. Finally, GRAMPA (Gene-tree Reconciliation Algorithm with MUL-trees for Polyploid Analysis) uses an algorithm for counting gene duplications and losses to identify polyploidy events, distinguishing between allo- and autopolyploid, and place them on a phylogeny (Thomas et al., 2017). 
