@@ -3,7 +3,7 @@
 
 export ALIGNMENT # input fasta sequence
 export BOOTSTRAP="500"  # number of BS trees
-export PBS_NUM_PPN="8" # number of CPU threads
+export PBS_NUM_PPN="10" # number of CPU threads
 
 
 
