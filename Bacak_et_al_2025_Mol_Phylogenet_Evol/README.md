@@ -140,6 +140,28 @@ The results were visualised using [quartetsampling.r](https://github.com/tomas-f
 
 
 
+## STRUCTURE
+The STRUCTURE analysis was conducted on 100 datasets produced by selecting a single random SNP from each RADseq locus containing at least six SNPs, using [vcf_prune.py](https://github.com/MarekSlenker/vcf_prune/blob/main/vcf_prune.py) script. The STRUCTURE analysis itself was run as in the [STRUCTURE.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/STRUCTURE.sh) script. The results were visualised by [CLUMPAK](https://tau.evolseq.net/clumpak/) and the homogeneity of results was assessed on the graphs produced by [structureSum](https://github.com/MarekSlenker/structureSum).
+
+
+## A neighbor-net network
+A neighbor-net network was created using the NeighborNet algorithm in SplitsTree4 based on Nei’s genetic distances calculated in the StAMPP R package [Neis_distances.R](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/Neis_distances.R).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Further insight into the overall genetic structure was obtained using a Bayesian clustering approach implemented in STRUCTURE v. 2.3.4 (Pritchard et al. 2000) and a neighbor-net network in SplitsTree4 (Huson and Bryant, 2006). STRUCTURE analysed 100 datasets, each containing a single randomly selected SNP from RADseq loci with at least six SNPs, using the vcf_prune.py script (Šlenker, 2024). Calculations were performed and summarized as described in Šlenker et al. (2021). For the neighbor-net (NN) analysis, Nei’s genetic distances (Nei 1972) were calculated in the R package StAMPP (Pembleton et al. 2013) using R 4.4.0 (R Core Team 2024).  
 Furthermore, a Bayes factor species delimitation analysis (BFD*, Leaché et al., 2014; Leaché and Bouckaert, 2018) was performed to statistically validate the genetic clusters within the Carpathian diploids (corresponding to E. witmannii s.l. and E. vagicum). Marginal likelihoods of species trees were derived using the Path Sampling approach with SNAPP v.1.4.2 (Bryant et al., 2012) and BEAST v. 2.5.0 (Bouckaert et al., 2014). The dataset of unlinked SNPs was used, which was reduced to three samples per genetic cluster, except for the smallest cluster Vihorlat, where only 2 samples were selected. Analyses were run in eight steps for each model, with 1,000,000 MCMC iterations, sampling every 1,000th, and a burn-in cutoff of 10%. Competing species delimitation models were ranked by comparing their marginal likelihood estimates and their support was assessed by calculating the Bayes factor (Kass and Raftery, 1995), as suggested by Leaché and Bouckaert (2018). Seven alternative species models were explored, either keeping the Carpathian diploids as one unit or splitting them into two to four entities, taking into account the ML tree, NN and STRUCTURE clustering results. Moreover, TreeAnnotator (Drummond and Rambaut, 2007) was used to summarise the posterior distribution of species trees and to identify the topology with the best posterior support, using the species model with the highest support in BFD* described above.
