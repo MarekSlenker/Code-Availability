@@ -301,34 +301,37 @@ for f in *label.reduced.fna; do
   bn=${f%.label.reduced.fna}
   for r in $(grep ">" $f); do
     echo $r
-    grep -A 1 "$r" "$f" > ../PATE.2.1.one_allopolyploid_plus_diploids/"$bn"."$r".fna
-    cat ../supercontigs_aln_gt31_skontrolovane_consens2Fazovane_aln_bezOutoci_cons2x/"$bn".fasta >> ../PATE.2.1.one_allopolyploid_plus_diploids/"$bn"."$r".fna
+    grep -A 1 "$r" "$f" > ../2.1.one_allopolyploid_plus_diploids/"$bn"."$r".fna
+    cat ../supercontigs_aln_gt31_skontrolovane_consens2Fazovane_aln_bezOutoci_cons2x/"$bn".fasta >> ../2.1.one_allopolyploid_plus_diploids/"$bn"."$r".fna
   done
 done
 ```
 
-2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 20% of bootstrap replicates. That means if some homeolog was originally labelled as "witmannii" (step 1.8), we keep that particular sequence only if more than 100 BS trees (20%) were re-labelled as "witmannii".
+2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 20% of bootstrap replicates. That means if some homeolog was originally labelled as "witmannii" (step 1.8), we keep that particular sequence only if more than 100 BS trees (20%) were re-labelled as "witmannii".  
 
-TUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTO
-
-2.18) "Homeologs' ML consensus tree" (see also [2.18) Phylogenomic analysis of concatenated labelled, filtered and corrected genes/MSAs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#218-phylogenomic-analysis-of-concatenated-labelled-filtered--and-corrected-genesmsas-homeologs-ml-consensus-tree)). We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree `PhyloSD.Cacris.raxml.bestTree` was computed in RAxML-NG from the concatenated alignment, as described above.
+2.18) "Homeologs' ML consensus tree" (see also [2.18) Phylogenomic analysis of concatenated labelled, filtered and corrected genes/MSAs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#218-phylogenomic-analysis-of-concatenated-labelled-filtered--and-corrected-genesmsas-homeologs-ml-consensus-tree)). We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (those with at least 12-15% representation in the polyploid genome). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree was computed in RAxML-NG from the concatenated alignment, as described above.
 
 
 #### 3) SUBGENOME ASSIGNMENT algorithm
-Sample acraC095.109 contains 2 close homeologs, EBalkan and Dinaric. This was done to see if those homeologs refer to the same subgenome. Using the following code, we computed patristic distances, PCoA-MST (Principal coordinates analysis-minimum spanning tree), in R.
+In this step, homeologs referring to the same subgenome are amalgamated, based on PCoA-MST (Principal coordinates analysis-minimum spanning tree). Using the following code, we computed patristic distances and PCoA-MST in R.
 
 ```R
 library(adephylo)
 library(ape)
 library(stats)
 
-tree = read.tree("PhyloSD.Cacris.raxml.bestTree")
+tree = read.tree("Ery.Karpatske.fazovane.presli.BS.concatenated.nad12percent.raxml.bestTree")
 
-patristicDists = distTips(tree,   method = "patristic")
+patristicDists = distTips(tree, method = "patristic")
 
 distMatrix= as.matrix(patristicDists)
 
-poylploids = distMatrix[grep("acrisPP", colnames(distMatrix)),grep("acrisPP", colnames(distMatrix))]
+poylploids = distMatrix[grep(
+"odoratumRetezat_witmannii|odoratumRetezat_saxosum|odoratum22chrom_saxosum|odoratum22chrom_witmannii|odoratum22chrom_crassistylum|odoratum6x_saxosum|odoratum6x_witmannii|odoratum6x_crassistylum|odoratum6x_cuspidatum|odoratum4x_witmannii|odoratum4x_cuspidatum",
+colnames(distMatrix)),
+grep(
+"odoratumRetezat_witmannii|odoratumRetezat_saxosum|odoratum22chrom_saxosum|odoratum22chrom_witmannii|odoratum22chrom_crassistylum|odoratum6x_saxosum|odoratum6x_witmannii|odoratum6x_crassistylum|odoratum6x_cuspidatum|odoratum4x_witmannii|odoratum4x_cuspidatum",
+colnames(distMatrix))]
 
 maf.coa <- dudi.pco(as.dist(poylploids), scannf = FALSE, nf = 3)
 
@@ -339,15 +342,74 @@ s.label(maf.coa$li, label = row.names(maf.coa$li),clab = 0.8,  cpoi = 2, neig = 
 plot(maf.coa$li[,1],maf.coa$li[,2], asp=1)
 ```
 
-3.5) Amalgamate homeologs. Two homeologs of acraC095.109 were amalgamated. If both homeologs were present for the same gene, that with higher BS support was kept.
-
-3.6) Compute the Subgenomic ML consensus tree. The tree was computed in RAxML-NG.
-
-
+3.5) Amalgamate homeologs: however, the homeologs were too differentiated to be merged. Therefore, we used ASTRAL-III to infer the final subgenomic tree.
 
 
 ## EPA-ng
-EPA-ng (Barbera et al., 2019), a reimplementation of the evolutionary placement algorithm (EPA), performs maximum likelihood-based placement of allelic sequences onto a reference phylogenetic tree. Only placements with a likelihood weight ratio greater than 0.9 were considered significant and subsequently used for species tree inference in ASTRAL-III. 
+The EPA-ng performs maximum likelihood-based placement of allelic sequences onto a reference phylogenetic tree. Only placements with a likelihood weight ratio greater than 0.9 were considered significant and subsequently used for species tree inference in ASTRAL-III. Since the samples were not evenly represented, we used usearch to cluster the sequences for each taxon, and the centroid sequence was used as a representative sequence for the entire taxon.
+
+
+```ruby
+
+PP="Kavlar2" # polypolod sample
+# ALN is a fasta file, containing sequences of 2x samples and one polyploid ($PP)
+
+for ALN in *fasta; do
+    echo $ALN
+    grep -A 1 "$PP" $ALN > querySeq.fasta 
+    sed -i "/$PP/,+1 d" $ALN
+
+    # USEARCH
+    for SAMP in samples*; do
+        SMPL=${SAMP#*.}
+        grep --no-group-separator -A 1 -f $SAMP $ALN > "$SAMP".toClust
+
+        sed -i 's/a/A/g' "$SAMP".toClust
+        sed -i 's/c/C/g' "$SAMP".toClust
+        sed -i 's/t/T/g' "$SAMP".toClust
+        sed -i 's/g/G/g' "$SAMP".toClust
+
+        <PATH>/usearch11.0.667_i86linux32 -cluster_fast "$SAMP".toClust \
+        -id 0.1 \
+        -centroids "$ALN"."$SAMP".centroids.fasta \
+        -consout "$ALN"."$SAMP".consout.fasta \
+        -uc "$ALN"."$SAMP".clusters.uc 
+
+        echo ">$SMPL" >> ${ALN%.*}.centroids.fasta
+        grep -v ">" "$ALN"."$SAMP".centroids.fasta >> ${ALN%.*}.centroids.fasta
+
+        rm "$SAMP".toClust
+    done
+
+    cat querySeq.fasta >>${ALN%.*}.centroids.fasta
+
+    mafft ${ALN%.*}.centroids.fasta > ${ALN%.*}.centroids.aln.fasta
+
+    awk '!/^>/ { printf "%s", $0; n = "\n" } /^>/ { print n $0; n = "" } END { printf "%s", n }' ${ALN%.*}.centroids.aln.fasta  > temp_file
+    mv temp_file ${ALN%.*}.centroids.aln.fasta
+
+
+    grep -A 1 "$PP" ${ALN%.*}.centroids.aln.fasta > querySeq.fasta 
+    sed -i "/$PP/,+1 d" ${ALN%.*}.centroids.aln.fasta
+
+
+
+    ./iqtree -s ${ALN%.*}.centroids.aln.fasta -m TESTONLY -st DNA -nt $PBS_NUM_PPN -pre iqtreeoutput -rcluster 10 -redo -quiet
+
+    # find the best model
+    MODEL=$(grep "Best-fit model according to BIC:" iqtreeoutput.iqtree | cut -d ' ' -f 6)
+
+    # https://raw.githubusercontent.com/MarekSlenker/Code-Availability/refs/heads/main/Slenker_et_al_2024_Molecular_Ecology/ML_Trees.PhyhlogenyModelParser.sh
+    NEWMODEL=$( ./ML_Trees.PhyhlogenyModelParser.sh $MODEL )
+    ./raxml-ng --msa ${ALN%.*}.centroids.aln.fasta --model "$NEWMODEL" --tree pars{5},rand{5} --blopt nr_safe --redo  --threads $PBS_NUM_PPN --force --prefix ${ALN%.*}.centroids >> ${ALN%.*}.centroids.log || ./raxml-ng --msa ${ALN%.*}.centroids.aln.fasta --model "$NEWMODEL" --tree pars{5},rand{5} --blopt nr_safe --threads 1 --prefix ${ALN%.*}.centroids >> ${ALN%.*}.centroids.log
+
+    epa-ng --ref-msa ${ALN%.*}.centroids.aln.fasta --tree  ${ALN%.*}.centroids.raxml.bestTree --query querySeq.fasta --model ${ALN%.*}.centroids.raxml.bestModel --redo
+    mv epa_result.jplace ${ALN%.*}.centroids.RAxMLTree.jplace
+
+done
+
+```
+
 
 ## AlleleSorting
 In the AlleleSorting approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, labelled to attribute them to different subgenomes (Šlenker et al. 2021), and treated as independent accessions in the coalescent based species tree inference in ASTRAL-III. 
