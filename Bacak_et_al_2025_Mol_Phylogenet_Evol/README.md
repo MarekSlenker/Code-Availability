@@ -261,8 +261,102 @@ acraC149_8
 2
 ```
 
+## PhyloSD
+Due to the pipeline's requirement for a single representative of diploid genomes, the species tree from each gene tree was calculated by ASTRAL-III following [PhyloSD.1.ASTRALGeneTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/PhyloSD.1.ASTRALGeneTrees.sh) script, merging the respective 2x samples to a single taxon, but keeping polyploids with separate (phased) alleles.  
+
+#### 1) NEAREST DIPLOID SPECIES NODE algorithm
+1.5) Root and sort nodes in trees, losing bootstrap and aLRT supports on the way. (see also [Root and sort nodes in trees...](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#15-root-and-sort-nodes-in-trees-loosing-bootstrap-and-alrt-supports-on-the-way))
+```ruby
+mkdir 1.5_RootAndSort
+parallel -j 8 "echo {}; perl5.38.2 <PATH>/PhyloSD/bin/PhyloSD/_reroot_tree.pl {} > 1.5_RootAndSort/{.}.root.ph" ::: *astralTree
+```
+1.6) Check diploid skeleton (topology) for each tree (see also [Check diploid skeleton (topology) for each tree)](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#16-check-diploid-skeleton-topology-for-each-tree))
+```ruby
+cd 1.5_RootAndSort
+for FILE in *root.ph; do
+   perl5.38.2 <PATH>/PhyloSD/bin/PhyloSD/_check_diploids.pl $FILE;
+done > ../diploids.log
+```
+Due to an unacceptable loss of data, incongruent diploid skeletons were not discarded (unlike in the original pipeline), and all sequences and trees were moved to `1.7_congruent_and_labelled_files` folder.
+```ruby
+mkdir 1.7_congruent_and_labelled_files
+cp 1.5_RootAndSort/*ph 1.7_congruent_and_labelled_files # trees
+cp inputSequences/*fna 1.7_congruent_and_labelled_files # sequences
+```
+
+1.8) Labelling polyploid homeologs (see also [Labelling polyploid homeologs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#18-labelling-polyploid-homeologs))
+```ruby
+cd 1.7_congruent_and_labelled_files
+parallel -j 8 "echo {}; perl5.38.2 <PATH>/PhyloSD/bin/PhyloSD/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
+```
+Homeologs of polyploids, that fit the criteria in [polyconfig.Erysimum.pm](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025/polyconfig.Erysimum.pm) config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
+
+#### 2) BOOTSTRAPPING REFINEMENT algorithm
+
+2.1) Each polyploid homeolog from `label.reduced.fna` files was merged with 2x samples+outgroup (supercontigs_aln_gt31_skontrolovane_consens2Fazovane_aln_bezOutoci_cons2x), and the correctness of attribution to 2x parental taxa was tested by bootstrapping (see also [Set the pruned FASTA alignments (diploids + outgroups + one polyploid homeolog)](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#21-set-the-pruned-fasta-alignments-diploids--outgroups--one-polyploid-homeolog)).  
+
+```ruby
+
+for f in *label.reduced.fna; do
+  bn=${f%.label.reduced.fna}
+  for r in $(grep ">" $f); do
+    echo $r
+    grep -A 1 "$r" "$f" > ../PATE.2.1.one_allopolyploid_plus_diploids/"$bn"."$r".fna
+    cat ../supercontigs_aln_gt31_skontrolovane_consens2Fazovane_aln_bezOutoci_cons2x/"$bn".fasta >> ../PATE.2.1.one_allopolyploid_plus_diploids/"$bn"."$r".fna
+  done
+done
+```
+
+2.2) Run 500 non-parametric bootstrapping replicates & Labelling polyploid homeologs. [PhyloSD.2.LabelBSTrees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/PhyloSD.2.LabelBSTrees.sh). The results are in `counts` files. Those files summarize the results of re-labelling polyploid homeologs. We required confirmation by at least 20% of bootstrap replicates. That means if some homeolog was originally labelled as "witmannii" (step 1.8), we keep that particular sequence only if more than 100 BS trees (20%) were re-labelled as "witmannii".
+
+TUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTOTUTO
+
+2.18) "Homeologs' ML consensus tree" (see also [2.18) Phylogenomic analysis of concatenated labelled, filtered and corrected genes/MSAs](https://github.com/eead-csic-compbio/allopolyploids?tab=readme-ov-file#218-phylogenomic-analysis-of-concatenated-labelled-filtered--and-corrected-genesmsas-homeologs-ml-consensus-tree)). We concatenated sequences of 2x samples and the labelled homeologs of each polyploid (with at least 15% representation in the polyploid species). If more than one homeolog of the gene was labelled with the same 2x label, a homeolog with higher BS support was chosen. The phylogenetic tree `PhyloSD.Cacris.raxml.bestTree` was computed in RAxML-NG from the concatenated alignment, as described above.
+
+
+#### 3) SUBGENOME ASSIGNMENT algorithm
+Sample acraC095.109 contains 2 close homeologs, EBalkan and Dinaric. This was done to see if those homeologs refer to the same subgenome. Using the following code, we computed patristic distances, PCoA-MST (Principal coordinates analysis-minimum spanning tree), in R.
+
+```R
+library(adephylo)
+library(ape)
+library(stats)
+
+tree = read.tree("PhyloSD.Cacris.raxml.bestTree")
+
+patristicDists = distTips(tree,   method = "patristic")
+
+distMatrix= as.matrix(patristicDists)
+
+poylploids = distMatrix[grep("acrisPP", colnames(distMatrix)),grep("acrisPP", colnames(distMatrix))]
+
+maf.coa <- dudi.pco(as.dist(poylploids), scannf = FALSE, nf = 3)
+
+maf.mst <- ade4::mstree(dist.dudi(maf.coa), 1)
+
+s.label(maf.coa$li, label = row.names(maf.coa$li),clab = 0.8,  cpoi = 2, neig = maf.mst, cnei = 1)
+
+plot(maf.coa$li[,1],maf.coa$li[,2], asp=1)
+```
+
+3.5) Amalgamate homeologs. Two homeologs of acraC095.109 were amalgamated. If both homeologs were present for the same gene, that with higher BS support was kept.
+
+3.6) Compute the Subgenomic ML consensus tree. The tree was computed in RAxML-NG.
 
 
 
 
-We applied four different methods to identify homeologous diploid subgenomes and the most likely parental species or lineages: PhyloSD (Sancho et al., 2022), EPA-ng (Barbera et al., 2019), AlleleSorting (Šlenker et al., 2021), and GRAMPA (Thomas et al., 2017). In the PhyloSD approach we followed the pipeline by Sancho et al. (2022) with some modifications. Due to the pipeline's requirement for a single representative of diploid genomes, we calculated species tree of each gene using ASTRAL- III. Due to unacceptable loss of data, we did not discard incongruent diploid skeletons (unlike in Sancho et al. 2022), but rather applied stricter criteria in the Bootstrapping Refinement step,  keeping only the homeologs that were confirmed by at least 20% of bootstrap replicates. Only the major homeolog-types (those with at least 12-15% representation in the polyploid genome) were further processed with the “Subgenome Assignment” algorithm and used for the subgenomic tree constructions in RAxML-NG. The subgenomic ML trees were finally summarized in ASTRAL-III. In the AlleleSorting approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, labelled to attribute them to different subgenomes (Šlenker et al. 2021), and treated as independent accessions in the coalescent based species tree inference in ASTRAL-III. EPA-ng (Barbera et al., 2019), a reimplementation of the evolutionary placement algorithm (EPA), performs maximum likelihood-based placement of allelic sequences onto a reference phylogenetic tree. Only placements with a likelihood weight ratio greater than 0.9 were considered significant and subsequently used for species tree inference in ASTRAL-III. Finally, GRAMPA (Gene-tree Reconciliation Algorithm with MUL-trees for Polyploid Analysis) uses an algorithm for counting gene duplications and losses to identify polyploidy events, distinguishing between allo- and autopolyploid, and place them on a phylogeny (Thomas et al., 2017). 
+## EPA-ng
+EPA-ng (Barbera et al., 2019), a reimplementation of the evolutionary placement algorithm (EPA), performs maximum likelihood-based placement of allelic sequences onto a reference phylogenetic tree. Only placements with a likelihood weight ratio greater than 0.9 were considered significant and subsequently used for species tree inference in ASTRAL-III. 
+
+## AlleleSorting
+In the AlleleSorting approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, labelled to attribute them to different subgenomes (Šlenker et al. 2021), and treated as independent accessions in the coalescent based species tree inference in ASTRAL-III. 
+## GRAMPA
+Finally, GRAMPA (Gene-tree Reconciliation Algorithm with MUL-trees for Polyploid Analysis) uses an algorithm for counting gene duplications and losses to identify polyploidy events, distinguishing between allo- and autopolyploid, and place them on a phylogeny (Thomas et al., 2017). 
+
+
+
+
+
+
+
