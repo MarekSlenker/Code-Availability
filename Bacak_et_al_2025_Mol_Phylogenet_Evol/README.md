@@ -1,4 +1,27 @@
-This repository stores scripts and commands used for the analysis of RADseq data for the paper Zozomova et al. 2025
+This repository stores scripts and commands used for the analysis of RADseq data for the paper Bacak et al. 2025
+
+### Table of Contents
+**[RADseq data processing](#radseq-data-processing)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Demultiplexing, quality filtering and deduplication](#demultiplexing-quality-filtering-and-deduplication)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) tree](#maximum-likelihood-ml-tree)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[A neighbor-net network](#a-neighbor-net-network)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Bayes factor species delimitation analysis (BFD*)](#bayes-factor-species-delimitation-analysis-bfd)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Dsuite](#dsuite)<br>
+<br>
+
+**[Hyb-Seq data processing](#hyb-seq-data-processing)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[HybPiper](#hybpiper)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[HybPhaser](#hybphaser)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) trees](#maximum-likelihood-ml-trees)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[ASTRAL](#astral)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Read-backed phasing](#read-backed-phasing)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[PhyloSD](#phylosd)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[EPA-ng](#epa-ng)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[AlleleSorting](#allelesorting)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[GRAMPA](#grampa)<br>
+
 
 
 
