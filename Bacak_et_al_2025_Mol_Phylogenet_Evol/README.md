@@ -407,16 +407,97 @@ for ALN in *fasta; do
     mv epa_result.jplace ${ALN%.*}.centroids.RAxMLTree.jplace
 
 done
+```
+
+Results were evaluated as follow:  
+
+**1)** jplace files were edited:
+```ruby
+sed -i 's/:[0-9.]*{/{/g' *jplace
+```
+
+**2)** The best placement for each edge_num was associated with the respective taxon or left unassociated, if it points to an internal node (internal nodes couldn't be compared among trees, as input trees had different topology). R code follows.
+```ruby
+
+for (F in c("BREITs1","GLAVs1", "Maliscak9", "SCO3", "CIUC6R", "Kavlar2", "RET1s", "VGrad1")) {
+  wd=paste("<PATH>/epa/vyhodnotenie/",F, sep = "")
+  setwd(wd)
+  
+  
+      for (jplace_path in list.files(".", "jplace")) {
+        jplace <- fromJSON(jplace_path, simplifyVector = FALSE)
+        
+        # Extract the tree string and read it as phylo object
+        tree_newick <- jplace$tree
+        tree <- read.tree(text = tree_newick)
+        
+        # tree$tip.label
+        tipLabelTable=matrix(unlist(strsplit(tree$tip.label, "\\{|\\}")), ncol=2, byrow=T)
+        
+        placements <- jplace$placements
+        
+        # write.table(paste(jplace_path), 
+        #            file = paste("../",F,".vyhodnotene.txt", sep = ""), append = T, quote = F, row.names = F, col.names = F)
+        
+        for (i in 1:length(placements)) {
+          p <- placements[[i]]
+          p$n[[1]]
+          edge_num=p[1]$p[[1]][[1]]
+          like_weight_ratio=p[1]$p[[1]][[3]]
+          write.table(paste(jplace_path, ":",edge_num, ":",like_weight_ratio, ":",tipLabelTable[which(tipLabelTable[,2] == edge_num), 1],":",p$n[[1]], sep = ""), 
+                      file = paste("../",F,".vyhodnotene.txt", sep = ""), append = T, quote = FALSE, row.names = FALSE, col.names = FALSE)
+          
+        }
+        
+      }
+
+}
+```
+
+**3)** The final step was to count allelic sequences placed with confidence above 95%.
+
+```ruby
+setwd("<PATH>/epa/vyhodnotenie/")
+
+
+
+for (F in c("BREITs1","GLAVs1", "Maliscak9", "SCO3", "CIUC6R", "Kavlar2", "RET1s", "VGrad1")) {
+  dd = read.delim(paste(F, ".vyhodnotene.txt", sep = ""), sep = ":", header = FALSE)
+  dd = dd[- which(dd$V4 == ""),]
+  aa = table(dd$V4[which(dd$V3 > 0.95)])
+  
+  
+  write.table(t(aa), file=paste(F,".95.res", sep = ""), col.names = T, row.names = FALSE)
+  write.table(t(aa/sum(aa)), file=paste(F,".95.res", sep = ""), col.names = FALSE, row.names = FALSE, append = T)
+  
+  write.table(dd[which(dd$V3 > 0.95),], file=paste(F,".above095.res", sep = ""), col.names = FALSE, row.names = FALSE, quote = FALSE)
+   
+}
 
 ```
 
 
+
 ## AlleleSorting
-In the AlleleSorting approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, labelled to attribute them to different subgenomes (Šlenker et al. 2021), and treated as independent accessions in the coalescent based species tree inference in ASTRAL-III. 
+In the [AlleleSorting](https://github.com/MarekSlenker/AlleleSorting) approach (applicable to the tetraploids only), alleles were sorted into two homeologs based on sequence divergence, following the pipeline proposed on that repository.  
+
+
 ## GRAMPA
-Finally, GRAMPA (Gene-tree Reconciliation Algorithm with MUL-trees for Polyploid Analysis) uses an algorithm for counting gene duplications and losses to identify polyploidy events, distinguishing between allo- and autopolyploid, and place them on a phylogeny (Thomas et al., 2017). 
+The GRAMPA uses an algorithm for counting gene duplications and losses to identify polyploidy events, distinguishing between allo- and autopolyploid, and place them on a phylogeny. 
 
+```ruby
+SPECIESTREE="BREITs1_trees.Root.astralTree"
+GENETREE="BREITs1_trees.Root.nwk"
+H1="BREITs1"
 
+grampa \
+-s $SPECIESTREE \
+-g $GENETREE \
+-h1 $H1 \
+-p 8 \
+--overwrite
+
+```
 
 
 
