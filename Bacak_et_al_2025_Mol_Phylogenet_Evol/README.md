@@ -111,7 +111,7 @@ countchar 'N' <concat.bialelic.filtered.DP8.passed.vcf.min4.phy
 
 ## Maximum likelihood (ML) tree
 The [vcf2phylip.py](https://github.com/edgardomortiz/vcf2phylip/blob/master/vcf2phylip.py) script was used to transform the data from the VCF file to the PHYLIP, and invariant sites were removed with the script [ascbias.py](https://github.com/btmartin721/raxml_ascbias).
-The ML tree was constructed by RAxML-NG v.0.9.0, employing GTR model with Felsenstein’s ascertainment bias correction using script [MLTree.1.bestTree.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025/MLTree.1.bestTree.sh). Bootstrap analyses were performed using 500 replicates [MLTree.2.BS_trees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/MLTree.2.BS_trees.sh), and the final tree with BS support was inferred using 
+The ML tree was constructed by RAxML-NG v.0.9.0, employing GTR model with Felsenstein’s ascertainment bias correction using script [MLTree.1.bestTree.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/MLTree.1.bestTree.sh). Bootstrap analyses were performed using 500 replicates [MLTree.2.BS_trees.sh](https://github.com/MarekSlenker/Code-Availability/blob/main/Slenker_et_al_2024_Molecular_Ecology/MLTree.2.BS_trees.sh), and the final tree with BS support was inferred using 
 
 
 ```ruby
@@ -289,7 +289,7 @@ cp inputSequences/*fna 1.7_congruent_and_labelled_files # sequences
 cd 1.7_congruent_and_labelled_files
 parallel -j 8 "echo {}; perl5.38.2 <PATH>/PhyloSD/bin/PhyloSD/_check_lineages_polyploids.pl -v -f {} -t {.}.raxml.bestTree.root.ph > {}.log" ::: *.fna
 ```
-Homeologs of polyploids, that fit the criteria in [polyconfig.Erysimum.pm](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025/polyconfig.Erysimum.pm) config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
+Homeologs of polyploids, that fit the criteria in [polyconfig.Erysimum.pm](https://github.com/MarekSlenker/Code-Availability/blob/main/Bacak_et_al_2025_Mol_Phylogenet_Evol/polyconfig.Erysimum.pm) config file (defined according to the phylogenetic tree), and thus can be attributed to one of the diploid parents, were written to `label.reduced.fna` files.
 
 #### 2) BOOTSTRAPPING REFINEMENT algorithm
 
