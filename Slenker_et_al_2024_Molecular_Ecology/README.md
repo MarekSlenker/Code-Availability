@@ -1,3 +1,11 @@
+This repository contains code used for data processing in [Šlenker et al., 2024, Molecular Ecology](https://doi.org/10.1111/mec.17564).<br>
+
+
+This work was supported by the EU NextGenerationEU through the Recovery and Resilience Plan for Slovakia under the project No. 09I03-03-V04-00494.
+
+<br><br>
+
+
 ### Table of Contents
 **[Hyb-Seq data processing](#hyb-seq-data-processing)**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[HybPiper](#hybpiper)<br>
