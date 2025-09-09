@@ -5,6 +5,7 @@ This repository stores scripts and commands used for the analysis of RADseq data
 &nbsp;&nbsp;&nbsp;&nbsp;[Demultiplexing, quality filtering and deduplication](#demultiplexing-quality-filtering-and-deduplication)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Variant calling & filtration](#variant-calling--filtration)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Maximum likelihood (ML) tree](#maximum-likelihood-ml-tree)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Species tree](#species-tree)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[STRUCTURE](#structure)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[A neighbor-net network](#a-neighbor-net-network)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Bayes factor species delimitation analysis (BFD*)](#bayes-factor-species-delimitation-analysis-bfd)<br>
@@ -146,7 +147,70 @@ raxml-ng --support \
 --prefix concat.bialelic.filtered.DP8.passed.vcf.min4.ascbias_Lewis.raxml --threads 1 
 ```
 
-### quartet sampling
+
+## Species tree
+The polyploid genotypes were converted into the diploid ones, preserving homozygote and heterozygote genotypes using sed commands.
+
+```ruby
+sed -i 's/\.\/\.\/\./.\/./g' $VCF
+sed -i 's/1\/1\/1/1\/1/g' $VCF
+sed -i 's/0\/1\/1/0\/1/g' $VCF
+sed .... 
+```
+
+
+The fasta sequences for each RAD locus (`$REGS`) of each sample were generated using GATK's FastaAlternateReferenceMaker tool, with heterozygous SNP sites outputed using IUPAC ambiguity codes.
+
+```ruby
+gatk --java-options "-Xmx120g -XX:+UseSerialGC" SelectVariants \
+-V $VCF \
+-O "$SAMPLE".vcf.gz \
+--sample-name $SAMPLE
+
+
+gatk --java-options "-Xmx120g -XX:+UseSerialGC" FastaAlternateReferenceMaker \
+-R /auto/pruhonice1-ibot/nfs4/home/mslenker/Projects/ref/Erysimum_cheiranthoides/GCA_011420285.1_BTI_Eche1.2_genomic.fasta \
+-O "$SAMPLE".fasta \
+-L $(basename $REGS) \
+-V "$SAMPLE".vcf.gz \
+--use-iupac-sample $SAMPLE
+```
+
+
+The FASTA sequences for each RAD locus of each sample were collected using the following commands.
+
+```ruby
+# how many regions do we have?
+echo $(wc -l $REGS)
+# 19356
+
+
+# Removes line breaks from a fasta files
+for file in *.fasta; do
+    echo "$file"
+    awk '!/^>/ { printf "%s", $0; n = "\n" } /^>/ { print n $0; n = "" } END { printf "%s", n }' $file  > temp_file
+    mv temp_file $file
+done
+
+# FastaAlternateReferenceMaker uses "." if SNP is missing
+sed -i 's/\./-/g' *fasta
+
+parallel --jobs 32 '
+  seq={};
+  while read SAMPLE; do
+      echo ">$SAMPLE" >>res/"$seq".fasta
+      grep -A 1 ">$seq " "$SAMPLE".fasta | grep -v ">" >>res/"$seq".fasta
+  done <"$SAMPLELIST"
+' ::: {1..19356}
+
+```
+
+Phylogenetic trees were inferred in RAxML-NG, using the best-fitting substitution models (see below), from loci that were at least 150 bp in length and contained more than 10 phylogenetically informative sites (calculated by AMAS). A species tree was then estimated with ASTRAL-III, using individual gene trees in which branches with low support (≤20%; based on 500 bootstrap replicates) were collapsed. Additional details are provided below.
+
+
+## quartet sampling
+
+
 
 Branch support and the amount of discordance were further assessed by the quartet sampling method (Pease et al., 2018), enabling to distinguish between lack of support and conflicting support in the phylogenetic tree.
 Branch support and the degree of discordance were further assessed using the quartet sampling method (Pease et al., 2018), which enables distinction between a lack of support and conflicting support within the phylogenetic tree.
