@@ -5,6 +5,7 @@
 
 SEQ="C087_203_hap1.fa"
 
+# <PATH>/dfam-tetools/Libraries is the location of Dfam (v3.9) and RepBase (v20181026) databases. Databases were configured with /opt/RepeatMasker/tetoolsDfamUpdate.pl
 
 singularity run \
 -B <PATH>/dfam-tetools/Libraries:/opt/RepeatMasker/Libraries \
