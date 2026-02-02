@@ -13,7 +13,7 @@ emapper.py --cpu 24 \
 --output_dir <PATH>/function_annotation/eggNOG \
 --temp_dir <PATH>/function_annotation/eggNOG \
 --override -m diamond --dmnd_ignore_warnings \
--i ../../C087_203_hap1.post_PASA.longest_isoform.aa \
+-i ../../C087_203_hap1.PASA.longest_isoform.aa \
 --evalue 0.00001 --score 60 --pident 40 --query_cover 20 --subject_cover 20 --itype proteins \
 --tax_scope auto --target_orthologs all --go_evidence non-electronic --pfam_realign none \
 --report_orthologs \
