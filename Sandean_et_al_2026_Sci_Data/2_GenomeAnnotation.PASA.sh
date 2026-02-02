@@ -16,6 +16,10 @@ mkdir DB
 sed -i "s@PATH@"$PWD"@"  alignAssembly.config
 sed -i "s@PATH@"$PWD"@"  annotCompare.config
 
+# 0) generate the transcript sequences --- by trinity
+
+# executed in a separate script:    3_functionAnnotation.trinity.sh
+
 
 # 1) cleaning the transcript sequences --- by trinity
 
