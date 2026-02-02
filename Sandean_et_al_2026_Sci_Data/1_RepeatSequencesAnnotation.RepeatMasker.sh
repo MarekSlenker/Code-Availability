@@ -5,7 +5,7 @@
 
 
 RELIB="merged-library.centroids.fa.classified.corrected.fasta"
-SEQ="C087_203_hap2.fa"
+SEQ="C087_203_hap1.fa"
 
 
 
