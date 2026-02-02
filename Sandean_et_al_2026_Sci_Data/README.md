@@ -22,3 +22,7 @@ Gene models from all three approaches were integrated using [EvidenceModeler](ht
 
 # Functional annotation
 Functional annotation of the protein-coding genes was conducted by aligning protein sequences against multiple databases, including [Kofam](https://github.com/MarekSlenker/Code-Availability/blob/main/Sandean_et_al_2026_Sci_Data/3_functionAnnotation.kofam.sh), RefSeq, SwissProt, and TrEMBL, using [diamond](https://github.com/MarekSlenker/Code-Availability/blob/main/Sandean_et_al_2026_Sci_Data/3_functionAnnotation.DIAMOND.sh), with e-value ≤ 1e-5 as threshold. Furthermore, [eggNOG-mapper](https://github.com/MarekSlenker/Code-Availability/blob/main/Sandean_et_al_2026_Sci_Data/3_functionAnnotation.emapper.sh) was utilized to search for homologous genes in the eggNOG database, to add KEGG terms, Gene Ontology terms, and Pfam domains.
+
+# Technical Validation
+To evaluate the completeness of the genome annotation, [BUSCO](https://github.com/MarekSlenker/Code-Availability/blob/main/Sandean_et_al_2026_Sci_Data/4_technicalValidation.BUSCO.sh) analysis and [OMArk](https://github.com/MarekSlenker/Code-Availability/blob/main/Sandean_et_al_2026_Sci_Data/4_technicalValidation.Omark.sh) with brassicales_odb10 and LUCA.h5 database were performed on the annotated gene set.
+
