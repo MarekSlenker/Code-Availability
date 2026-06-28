@@ -1,4 +1,4 @@
-This repository stores scripts and commands used for the analysis of RADseq data for the paper [Bacak et al. 2025](https://doi.org/10.1016/j.ppees.2025.125921).
+This repository stores scripts and commands used for the analysis of RADseq data for the paper [Bacak et al. 2025]([https://doi.org/10.1016/j.ppees.2025.125921](https://doi.org/10.1016/j.ympev.2025.108481)).
 
 ### Table of Contents
 **[RADseq data processing](#radseq-data-processing)**<br>
